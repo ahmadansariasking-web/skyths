@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { ShoppingCart, User, Menu, X, Search } from "lucide-react";
+import { ShoppingCart, User, Menu, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import logo from "@/assets/skyths-logo.png";
 
@@ -53,10 +53,6 @@ const Navbar = ({ cartCount = 0 }: NavbarProps) => {
 
           {/* Actions */}
           <div className="flex items-center gap-3">
-            <Button variant="ghost" size="icon" className="hidden md:flex">
-              <Search className="h-5 w-5" />
-            </Button>
-
             <Button
               variant="ghost"
               size="icon"
