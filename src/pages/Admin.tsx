@@ -24,6 +24,7 @@ import { toast } from "sonner";
 import logo from "@/assets/skyths-logo.png";
 import OrderReceipt from "@/components/OrderReceipt";
 import { products as initialProducts, Product } from "@/data/products";
+import { useAuth } from "@/contexts/AuthContext";
 import {
   LineChart,
   Line,
@@ -38,10 +39,6 @@ import {
   Pie,
   Cell,
 } from "recharts";
-
-// Admin credentials
-const ADMIN_EMAIL = "ad@skyths.com";
-const ADMIN_PASSWORD = "admin@20206";
 
 type TabType = "dashboard" | "orders" | "products" | "employees" | "analytics" | "settings";
 
@@ -69,6 +66,8 @@ interface Order {
   shipping: number;
   total: number;
   paymentMethod: string;
+  paymentSlip?: string | null;
+  paymentSlipName?: string | null;
   status: string;
   createdAt: string;
 }
@@ -86,9 +85,7 @@ const COLORS = ["#C87533", "#B8860B", "#CD853F", "#D2691E", "#8B4513", "#A0522D"
 
 const Admin = () => {
   const navigate = useNavigate();
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+  const { user, isAuthenticated, logout } = useAuth();
   const [activeTab, setActiveTab] = useState<TabType>("dashboard");
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [orders, setOrders] = useState<Order[]>([]);
@@ -104,32 +101,22 @@ const Admin = () => {
   ]);
 
   useEffect(() => {
-    const adminAuth = localStorage.getItem("skyths_admin_auth");
-    if (adminAuth === "true") {
-      setIsAuthenticated(true);
+    // Redirect if not authenticated as admin
+    if (!isAuthenticated || user?.role !== "admin") {
+      navigate("/auth");
+      return;
     }
     loadOrders();
-  }, []);
+  }, [isAuthenticated, user, navigate]);
 
   const loadOrders = () => {
     const storedOrders = JSON.parse(localStorage.getItem("skyths_orders") || "[]");
     setOrders(storedOrders);
   };
 
-  const handleLogin = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (email === ADMIN_EMAIL && password === ADMIN_PASSWORD) {
-      setIsAuthenticated(true);
-      localStorage.setItem("skyths_admin_auth", "true");
-      toast.success("Welcome back, Admin!");
-    } else {
-      toast.error("Invalid credentials");
-    }
-  };
-
   const handleLogout = () => {
-    setIsAuthenticated(false);
-    localStorage.removeItem("skyths_admin_auth");
+    logout();
+    navigate("/");
     toast.success("Logged out successfully");
   };
 
@@ -252,7 +239,7 @@ const Admin = () => {
           <Button variant="ghost" onClick={() => setSelectedOrder(null)} className="mb-6">
             ← Back to Orders
           </Button>
-          <OrderReceipt order={selectedOrder} />
+          <OrderReceipt order={selectedOrder} showPaymentSlip={true} />
           <div className="flex justify-center gap-4 mt-6">
             <Button variant="outline" onClick={() => window.print()}>
               Print Receipt

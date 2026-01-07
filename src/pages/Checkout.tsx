@@ -1,6 +1,6 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { CreditCard, Wallet, Building2, ArrowLeft, CheckCircle, Truck } from "lucide-react";
+import { CreditCard, Wallet, Building2, ArrowLeft, CheckCircle, Truck, Upload, Image as ImageIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -9,18 +9,22 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import OrderReceipt from "@/components/OrderReceipt";
 import { useCart } from "@/contexts/CartContext";
+import { useAuth } from "@/contexts/AuthContext";
 
 const Checkout = () => {
   const navigate = useNavigate();
   const { cartItems, getCartTotal, clearCart } = useCart();
+  const { isAuthenticated, user } = useAuth();
   const [paymentMethod, setPaymentMethod] = useState<string>("cod");
   const [isProcessing, setIsProcessing] = useState(false);
   const [orderComplete, setOrderComplete] = useState(false);
   const [orderData, setOrderData] = useState<any>(null);
+  const [paymentSlip, setPaymentSlip] = useState<string | null>(null);
+  const [paymentSlipName, setPaymentSlipName] = useState<string>("");
 
   const [formData, setFormData] = useState({
-    name: "",
-    email: "",
+    name: user?.name || "",
+    email: user?.email || "",
     phone1: "",
     phone2: "",
     address: "",
@@ -28,6 +32,25 @@ const Checkout = () => {
     postalCode: "",
     comments: "",
   });
+
+  // Redirect to auth if not logged in
+  useEffect(() => {
+    if (!isAuthenticated) {
+      toast.error("Please login to continue checkout");
+      navigate("/auth?redirect=/checkout");
+    }
+  }, [isAuthenticated, navigate]);
+
+  // Pre-fill form with user data
+  useEffect(() => {
+    if (user) {
+      setFormData((prev) => ({
+        ...prev,
+        name: user.name || prev.name,
+        email: user.email || prev.email,
+      }));
+    }
+  }, [user]);
 
   const subtotal = getCartTotal();
   const shipping = subtotal > 5000 ? 0 : 250;
@@ -41,6 +64,24 @@ const Checkout = () => {
     return `SKY-${timestamp}-${random}`;
   };
 
+  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      if (file.size > 5 * 1024 * 1024) {
+        toast.error("File size should be less than 5MB");
+        return;
+      }
+      
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setPaymentSlip(reader.result as string);
+        setPaymentSlipName(file.name);
+        toast.success("Payment slip uploaded successfully");
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -52,6 +93,12 @@ const Checkout = () => {
     // Validation
     if (!formData.name || !formData.email || !formData.phone1 || !formData.address || !formData.city) {
       toast.error("Please fill in all required fields");
+      return;
+    }
+
+    // Check payment slip for non-COD payments
+    if (paymentMethod !== "cod" && !paymentSlip) {
+      toast.error("Please upload payment slip for verification");
       return;
     }
 
@@ -85,7 +132,9 @@ const Checkout = () => {
       shipping,
       total,
       paymentMethod,
-      status: "pending",
+      paymentSlip: paymentSlip || null,
+      paymentSlipName: paymentSlipName || null,
+      status: paymentMethod === "cod" ? "pending" : "awaiting_verification",
       createdAt: new Date().toISOString(),
     };
 
@@ -336,6 +385,63 @@ const Checkout = () => {
                         Account Title: Skyths Leather<br />
                         Account Number: 0300-1234567
                       </p>
+                    </div>
+                  )}
+
+                  {/* Payment Slip Upload for non-COD */}
+                  {paymentMethod !== "cod" && (
+                    <div className="mt-6 p-4 bg-primary/5 border border-primary/20 rounded-lg">
+                      <h4 className="font-medium mb-3 flex items-center gap-2">
+                        <Upload className="h-4 w-4 text-primary" />
+                        Upload Payment Slip <span className="text-destructive">*</span>
+                      </h4>
+                      <p className="text-sm text-muted-foreground mb-4">
+                        Please transfer the amount and upload the payment slip/screenshot for verification.
+                      </p>
+                      <div className="flex flex-col gap-3">
+                        <label className="relative cursor-pointer">
+                          <input
+                            type="file"
+                            accept="image/*"
+                            className="hidden"
+                            onChange={handleFileUpload}
+                          />
+                          <div className={`flex items-center justify-center gap-2 p-4 border-2 border-dashed rounded-lg transition-colors ${paymentSlip ? "border-green-500 bg-green-500/10" : "border-border hover:border-primary/50"}`}>
+                            {paymentSlip ? (
+                              <>
+                                <CheckCircle className="h-5 w-5 text-green-500" />
+                                <span className="text-sm text-green-500 font-medium">{paymentSlipName}</span>
+                              </>
+                            ) : (
+                              <>
+                                <ImageIcon className="h-5 w-5 text-muted-foreground" />
+                                <span className="text-sm text-muted-foreground">Click to upload payment slip</span>
+                              </>
+                            )}
+                          </div>
+                        </label>
+                        {paymentSlip && (
+                          <div className="relative">
+                            <img
+                              src={paymentSlip}
+                              alt="Payment slip"
+                              className="w-full max-h-48 object-contain rounded-lg border border-border"
+                            />
+                            <Button
+                              type="button"
+                              variant="destructive"
+                              size="sm"
+                              className="absolute top-2 right-2"
+                              onClick={() => {
+                                setPaymentSlip(null);
+                                setPaymentSlipName("");
+                              }}
+                            >
+                              Remove
+                            </Button>
+                          </div>
+                        )}
+                      </div>
                     </div>
                   )}
                 </div>

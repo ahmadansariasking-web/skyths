@@ -1,4 +1,5 @@
 import logo from "@/assets/skyths-logo.png";
+import { Image as ImageIcon } from "lucide-react";
 
 interface OrderReceiptProps {
   order: {
@@ -25,12 +26,15 @@ interface OrderReceiptProps {
     shipping: number;
     total: number;
     paymentMethod: string;
+    paymentSlip?: string | null;
+    paymentSlipName?: string | null;
     status: string;
     createdAt: string;
   };
+  showPaymentSlip?: boolean;
 }
 
-const OrderReceipt = ({ order }: OrderReceiptProps) => {
+const OrderReceipt = ({ order, showPaymentSlip = false }: OrderReceiptProps) => {
   const formatPrice = (price: number) => `PKR ${price.toLocaleString()}`;
   const formatDate = (date: string) =>
     new Date(date).toLocaleDateString("en-PK", {
@@ -49,6 +53,22 @@ const OrderReceipt = ({ order }: OrderReceiptProps) => {
       jazzcash: "JazzCash",
     };
     return methods[method] || method;
+  };
+
+  const getPaymentStatusBadge = () => {
+    if (order.paymentMethod === "cod") return null;
+    if (order.paymentSlip) {
+      return (
+        <span className="px-2 py-1 rounded-full text-xs font-medium bg-blue-500/20 text-blue-500">
+          Payment Slip Uploaded
+        </span>
+      );
+    }
+    return (
+      <span className="px-2 py-1 rounded-full text-xs font-medium bg-yellow-500/20 text-yellow-500">
+        Awaiting Payment
+      </span>
+    );
   };
 
   const getStatusColor = (status: string) => {
@@ -95,9 +115,10 @@ const OrderReceipt = ({ order }: OrderReceiptProps) => {
             </span>
             <span className="text-sm text-muted-foreground">{formatDate(order.createdAt)}</span>
           </div>
-          <div className="text-sm">
+          <div className="flex items-center gap-3 text-sm">
             <span className="text-muted-foreground">Payment: </span>
             <span className="font-medium">{getPaymentMethodName(order.paymentMethod)}</span>
+            {getPaymentStatusBadge()}
           </div>
         </div>
 
@@ -152,6 +173,24 @@ const OrderReceipt = ({ order }: OrderReceiptProps) => {
             </div>
           </div>
         </div>
+
+        {/* Payment Slip (for admin/employee view) */}
+        {showPaymentSlip && order.paymentSlip && order.paymentMethod !== "cod" && (
+          <div className="mb-8 p-4 bg-blue-500/10 border border-blue-500/20 rounded-lg">
+            <h4 className="font-medium text-sm mb-3 flex items-center gap-2">
+              <ImageIcon className="h-4 w-4 text-blue-500" />
+              Payment Slip
+              {order.paymentSlipName && (
+                <span className="text-xs text-muted-foreground">({order.paymentSlipName})</span>
+              )}
+            </h4>
+            <img
+              src={order.paymentSlip}
+              alt="Payment slip"
+              className="w-full max-h-64 object-contain rounded-lg border border-border bg-background"
+            />
+          </div>
+        )}
 
         {/* Comments */}
         {order.customer.comments && (
