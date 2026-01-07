@@ -1,31 +1,22 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { CreditCard, Wallet, Building2, ArrowLeft, CheckCircle } from "lucide-react";
+import { CreditCard, Wallet, Building2, ArrowLeft, CheckCircle, Truck } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
-import { products, Product } from "@/data/products";
 import OrderReceipt from "@/components/OrderReceipt";
-
-interface CartItem extends Product {
-  quantity: number;
-}
+import { useCart } from "@/contexts/CartContext";
 
 const Checkout = () => {
   const navigate = useNavigate();
-  const [paymentMethod, setPaymentMethod] = useState<string>("bank");
+  const { cartItems, getCartTotal, clearCart } = useCart();
+  const [paymentMethod, setPaymentMethod] = useState<string>("cod");
   const [isProcessing, setIsProcessing] = useState(false);
   const [orderComplete, setOrderComplete] = useState(false);
   const [orderData, setOrderData] = useState<any>(null);
-
-  // Demo cart items
-  const [cartItems] = useState<CartItem[]>([
-    { ...products[0], quantity: 1 },
-    { ...products[1], quantity: 2 },
-  ]);
 
   const [formData, setFormData] = useState({
     name: "",
@@ -38,7 +29,7 @@ const Checkout = () => {
     comments: "",
   });
 
-  const subtotal = cartItems.reduce((sum, item) => sum + item.price * item.quantity, 0);
+  const subtotal = getCartTotal();
   const shipping = subtotal > 5000 ? 0 : 250;
   const total = subtotal + shipping;
 
@@ -52,6 +43,11 @@ const Checkout = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    if (cartItems.length === 0) {
+      toast.error("Your cart is empty");
+      return;
+    }
 
     // Validation
     if (!formData.name || !formData.email || !formData.phone1 || !formData.address || !formData.city) {
@@ -100,6 +96,7 @@ const Checkout = () => {
     setOrderData(order);
     setOrderComplete(true);
     setIsProcessing(false);
+    clearCart();
 
     toast.success("Order placed successfully!", {
       description: `Your order ID is ${orderId}`,
@@ -107,6 +104,7 @@ const Checkout = () => {
   };
 
   const paymentMethods = [
+    { id: "cod", name: "Cash on Delivery", icon: Truck, description: "Pay when you receive" },
     { id: "bank", name: "Bank Transfer", icon: Building2, description: "Direct bank transfer" },
     { id: "easypaisa", name: "EasyPaisa", icon: Wallet, description: "Mobile wallet payment" },
     { id: "jazzcash", name: "JazzCash", icon: CreditCard, description: "Mobile wallet payment" },
@@ -139,6 +137,24 @@ const Checkout = () => {
                 </Button>
               </div>
             </div>
+          </div>
+        </main>
+        <Footer />
+      </div>
+    );
+  }
+
+  if (cartItems.length === 0 && !orderComplete) {
+    return (
+      <div className="min-h-screen bg-background">
+        <Navbar />
+        <main className="pt-32 pb-24">
+          <div className="container mx-auto px-4 text-center">
+            <h1 className="font-serif text-3xl font-bold mb-4">Your cart is empty</h1>
+            <p className="text-muted-foreground mb-6">Add some products before checkout.</p>
+            <Button variant="hero" onClick={() => navigate("/shop")}>
+              Go to Shop
+            </Button>
           </div>
         </main>
         <Footer />
@@ -273,7 +289,7 @@ const Checkout = () => {
                   style={{ animationDelay: "200ms" }}
                 >
                   <h2 className="font-serif text-xl font-semibold mb-6">Payment Method</h2>
-                  <div className="grid sm:grid-cols-3 gap-4">
+                  <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
                     {paymentMethods.map((method) => (
                       <button
                         key={method.id}
@@ -291,6 +307,15 @@ const Checkout = () => {
                       </button>
                     ))}
                   </div>
+
+                  {paymentMethod === "cod" && (
+                    <div className="mt-6 p-4 bg-green-500/10 border border-green-500/20 rounded-lg">
+                      <h4 className="font-medium mb-2 text-green-500">Cash on Delivery</h4>
+                      <p className="text-sm text-muted-foreground">
+                        Pay with cash when your order is delivered to your doorstep. Please make sure to have the exact amount ready.
+                      </p>
+                    </div>
+                  )}
 
                   {paymentMethod === "bank" && (
                     <div className="mt-6 p-4 bg-muted/50 rounded-lg">

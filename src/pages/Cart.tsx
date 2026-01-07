@@ -3,38 +3,13 @@ import { Minus, Plus, Trash2, ShoppingBag, ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
-import { useState } from "react";
-import { Product, products } from "@/data/products";
-
-interface CartItem extends Product {
-  quantity: number;
-}
+import { useCart } from "@/contexts/CartContext";
 
 const Cart = () => {
   const navigate = useNavigate();
-  const [cartItems, setCartItems] = useState<CartItem[]>([
-    { ...products[0], quantity: 1 },
-    { ...products[1], quantity: 2 },
-  ]);
+  const { cartItems, updateQuantity, removeFromCart, getCartTotal } = useCart();
 
-  const updateQuantity = (id: string, change: number) => {
-    setCartItems((prev) =>
-      prev.map((item) =>
-        item.id === id
-          ? { ...item, quantity: Math.max(1, item.quantity + change) }
-          : item
-      )
-    );
-  };
-
-  const removeItem = (id: string) => {
-    setCartItems((prev) => prev.filter((item) => item.id !== id));
-  };
-
-  const subtotal = cartItems.reduce(
-    (sum, item) => sum + item.price * item.quantity,
-    0
-  );
+  const subtotal = getCartTotal();
   const shipping = subtotal > 5000 ? 0 : 250;
   const total = subtotal + shipping;
 
@@ -42,7 +17,7 @@ const Cart = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      <Navbar cartCount={cartItems.length} />
+      <Navbar />
 
       <main className="pt-32 pb-24">
         <div className="container mx-auto px-4">
@@ -91,7 +66,7 @@ const Cart = () => {
                         <Button
                           variant="ghost"
                           size="icon"
-                          onClick={() => removeItem(item.id)}
+                          onClick={() => removeFromCart(item.id)}
                           className="text-muted-foreground hover:text-destructive"
                         >
                           <Trash2 className="h-5 w-5" />
@@ -104,7 +79,7 @@ const Cart = () => {
                             variant="outline"
                             size="icon"
                             className="h-8 w-8"
-                            onClick={() => updateQuantity(item.id, -1)}
+                            onClick={() => updateQuantity(item.id, item.quantity - 1)}
                           >
                             <Minus className="h-4 w-4" />
                           </Button>
@@ -115,7 +90,7 @@ const Cart = () => {
                             variant="outline"
                             size="icon"
                             className="h-8 w-8"
-                            onClick={() => updateQuantity(item.id, 1)}
+                            onClick={() => updateQuantity(item.id, item.quantity + 1)}
                           >
                             <Plus className="h-4 w-4" />
                           </Button>

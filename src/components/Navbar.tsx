@@ -4,15 +4,14 @@ import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { ShoppingCart, User, Menu, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useCart } from "@/contexts/CartContext";
 import logo from "@/assets/skyths-logo.png";
 
-interface NavbarProps {
-  cartCount?: number;
-}
-
-const Navbar = ({ cartCount = 0 }: NavbarProps) => {
+const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const navigate = useNavigate();
+  const { getCartCount } = useCart();
+  const cartCount = getCartCount();
 
   const navLinks = [
     { name: "Home", path: "/" },
