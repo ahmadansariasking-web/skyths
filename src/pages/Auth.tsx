@@ -1,10 +1,11 @@
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { useNavigate, useLocation } from "react-router-dom";
 import { Eye, EyeOff, Mail, Lock, User as UserIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
 import logo from "@/assets/skyths-logo.png";
+import { useAuth } from "@/contexts/AuthContext";
 
 const Auth = () => {
   const [isLogin, setIsLogin] = useState(true);
@@ -15,10 +16,29 @@ const Auth = () => {
     password: "",
   });
   const navigate = useNavigate();
+  const location = useLocation();
+  const { login, isAuthenticated, user } = useAuth();
+
+  // Get redirect path from query params
+  const searchParams = new URLSearchParams(location.search);
+  const redirectTo = searchParams.get("redirect") || "/shop";
+
+  useEffect(() => {
+    // If already authenticated, redirect based on role
+    if (isAuthenticated && user) {
+      if (user.role === "admin") {
+        navigate("/admin");
+      } else if (user.role === "employee") {
+        navigate("/employee");
+      } else {
+        navigate(redirectTo);
+      }
+    }
+  }, [isAuthenticated, user, navigate, redirectTo]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     // Basic validation
     if (!formData.email || !formData.password) {
       toast.error("Please fill in all required fields");
@@ -30,14 +50,28 @@ const Auth = () => {
       return;
     }
 
-    // Demo - show success message
-    toast.success(isLogin ? "Welcome back!" : "Account created successfully!", {
-      description: "Redirecting to shop...",
-    });
+    const result = login(formData.email, formData.password, formData.name);
 
-    setTimeout(() => {
-      navigate("/shop");
-    }, 1500);
+    if (result.success) {
+      if (result.role === "admin") {
+        toast.success("Welcome back, Admin!", {
+          description: "Redirecting to Admin Panel...",
+        });
+        setTimeout(() => navigate("/admin"), 500);
+      } else if (result.role === "employee") {
+        toast.success("Welcome, Employee!", {
+          description: "Redirecting to Employee Portal...",
+        });
+        setTimeout(() => navigate("/employee"), 500);
+      } else {
+        toast.success(isLogin ? "Welcome back!" : "Account created successfully!", {
+          description: "Redirecting...",
+        });
+        setTimeout(() => navigate(redirectTo), 500);
+      }
+    } else {
+      toast.error(result.error || "Login failed");
+    }
   };
 
   return (

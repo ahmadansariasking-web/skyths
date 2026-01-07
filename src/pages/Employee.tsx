@@ -16,10 +16,7 @@ import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import logo from "@/assets/skyths-logo.png";
 import OrderReceipt from "@/components/OrderReceipt";
-
-// Employee credentials
-const EMPLOYEE_EMAIL = "employee@skyth.com";
-const EMPLOYEE_PASSWORD = "employee@2000";
+import { useAuth } from "@/contexts/AuthContext";
 
 interface Order {
   orderId: string;
@@ -45,15 +42,15 @@ interface Order {
   shipping: number;
   total: number;
   paymentMethod: string;
+  paymentSlip?: string | null;
+  paymentSlipName?: string | null;
   status: string;
   createdAt: string;
 }
 
 const Employee = () => {
   const navigate = useNavigate();
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+  const { user, isAuthenticated, logout } = useAuth();
   const [orders, setOrders] = useState<Order[]>([]);
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
   const [activeFilter, setActiveFilter] = useState("all");
@@ -61,32 +58,22 @@ const Employee = () => {
   const printRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    const employeeAuth = localStorage.getItem("skyths_employee_auth");
-    if (employeeAuth === "true") {
-      setIsAuthenticated(true);
+    // Redirect if not authenticated as employee
+    if (!isAuthenticated || user?.role !== "employee") {
+      navigate("/auth");
+      return;
     }
     loadOrders();
-  }, []);
+  }, [isAuthenticated, user, navigate]);
 
   const loadOrders = () => {
     const storedOrders = JSON.parse(localStorage.getItem("skyths_orders") || "[]");
     setOrders(storedOrders);
   };
 
-  const handleLogin = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (email === EMPLOYEE_EMAIL && password === EMPLOYEE_PASSWORD) {
-      setIsAuthenticated(true);
-      localStorage.setItem("skyths_employee_auth", "true");
-      toast.success("Welcome, Employee!");
-    } else {
-      toast.error("Invalid credentials");
-    }
-  };
-
   const handleLogout = () => {
-    setIsAuthenticated(false);
-    localStorage.removeItem("skyths_employee_auth");
+    logout();
+    navigate("/");
     toast.success("Logged out successfully");
   };
 
@@ -114,7 +101,13 @@ const Employee = () => {
     processing: orders.filter(o => o.status === "processing").length,
     shipped: orders.filter(o => o.status === "shipped").length,
     delivered: orders.filter(o => o.status === "delivered").length,
+    awaiting_verification: orders.filter(o => o.status === "awaiting_verification").length,
   };
+
+  // Show loading if not authenticated yet
+  if (!isAuthenticated || user?.role !== "employee") {
+    return null;
+  }
 
   // Login Screen
   if (!isAuthenticated) {
@@ -176,7 +169,7 @@ const Employee = () => {
             </Button>
           </div>
           <div ref={printRef}>
-            <OrderReceipt order={selectedOrder} />
+            <OrderReceipt order={selectedOrder} showPaymentSlip={true} />
           </div>
           <div className="mt-6 p-6 bg-card rounded-xl border border-border">
             <h3 className="font-serif font-semibold mb-4">Update Order Status</h3>

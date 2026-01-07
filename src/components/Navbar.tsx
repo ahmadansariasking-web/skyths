@@ -2,15 +2,24 @@
 
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { ShoppingCart, User, Menu, X } from "lucide-react";
+import { ShoppingCart, User, Menu, X, LogOut, ChevronDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useCart } from "@/contexts/CartContext";
+import { useAuth } from "@/contexts/AuthContext";
 import logo from "@/assets/skyths-logo.png";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const navigate = useNavigate();
   const { getCartCount } = useCart();
+  const { user, isAuthenticated, logout } = useAuth();
   const cartCount = getCartCount();
 
   const navLinks = [
@@ -19,6 +28,11 @@ const Navbar = () => {
     { name: "About", path: "/about" },
     { name: "Contact", path: "/contact" },
   ];
+
+  const handleLogout = () => {
+    logout();
+    navigate("/");
+  };
 
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-lg border-b border-border">
@@ -66,15 +80,50 @@ const Navbar = () => {
               )}
             </Button>
 
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => navigate("/auth")}
-              className="hidden sm:flex"
-            >
-              <User className="h-4 w-4 mr-2" />
-              Login
-            </Button>
+            {isAuthenticated && user ? (
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="outline" size="sm" className="hidden sm:flex gap-2">
+                    <div className="w-6 h-6 rounded-full bg-primary flex items-center justify-center text-primary-foreground text-xs font-bold">
+                      {user.name.charAt(0).toUpperCase()}
+                    </div>
+                    <span className="max-w-24 truncate">{user.name}</span>
+                    <ChevronDown className="h-4 w-4" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-48">
+                  <div className="px-2 py-2">
+                    <p className="text-sm font-medium truncate">{user.name}</p>
+                    <p className="text-xs text-muted-foreground truncate">{user.email}</p>
+                  </div>
+                  <DropdownMenuSeparator />
+                  {user.role === "admin" && (
+                    <DropdownMenuItem onClick={() => navigate("/admin")}>
+                      Admin Panel
+                    </DropdownMenuItem>
+                  )}
+                  {user.role === "employee" && (
+                    <DropdownMenuItem onClick={() => navigate("/employee")}>
+                      Employee Portal
+                    </DropdownMenuItem>
+                  )}
+                  <DropdownMenuItem onClick={handleLogout} className="text-destructive">
+                    <LogOut className="h-4 w-4 mr-2" />
+                    Logout
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            ) : (
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => navigate("/auth")}
+                className="hidden sm:flex"
+              >
+                <User className="h-4 w-4 mr-2" />
+                Login
+              </Button>
+            )}
 
             {/* Mobile Menu Toggle */}
             <Button
@@ -104,19 +153,69 @@ const Navbar = () => {
                 </Link>
               </div>
             ))}
-            <div className="animate-fade-in" style={{ animationDelay: "400ms" }}>
-              <Button
-                variant="hero"
-                className="w-full mt-4"
-                onClick={() => {
-                  navigate("/auth");
-                  setIsMenuOpen(false);
-                }}
-              >
-                <User className="h-4 w-4 mr-2" />
-                Login / Sign Up
-              </Button>
-            </div>
+            
+            {isAuthenticated && user ? (
+              <div className="pt-4 border-t border-border animate-fade-in" style={{ animationDelay: "400ms" }}>
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="w-10 h-10 rounded-full bg-primary flex items-center justify-center text-primary-foreground font-bold">
+                    {user.name.charAt(0).toUpperCase()}
+                  </div>
+                  <div>
+                    <p className="font-medium">{user.name}</p>
+                    <p className="text-sm text-muted-foreground">{user.email}</p>
+                  </div>
+                </div>
+                {user.role === "admin" && (
+                  <Button
+                    variant="outline"
+                    className="w-full mb-2"
+                    onClick={() => {
+                      navigate("/admin");
+                      setIsMenuOpen(false);
+                    }}
+                  >
+                    Admin Panel
+                  </Button>
+                )}
+                {user.role === "employee" && (
+                  <Button
+                    variant="outline"
+                    className="w-full mb-2"
+                    onClick={() => {
+                      navigate("/employee");
+                      setIsMenuOpen(false);
+                    }}
+                  >
+                    Employee Portal
+                  </Button>
+                )}
+                <Button
+                  variant="ghost"
+                  className="w-full text-destructive"
+                  onClick={() => {
+                    handleLogout();
+                    setIsMenuOpen(false);
+                  }}
+                >
+                  <LogOut className="h-4 w-4 mr-2" />
+                  Logout
+                </Button>
+              </div>
+            ) : (
+              <div className="animate-fade-in" style={{ animationDelay: "400ms" }}>
+                <Button
+                  variant="hero"
+                  className="w-full mt-4"
+                  onClick={() => {
+                    navigate("/auth");
+                    setIsMenuOpen(false);
+                  }}
+                >
+                  <User className="h-4 w-4 mr-2" />
+                  Login / Sign Up
+                </Button>
+              </div>
+            )}
           </div>
         </div>
       )}
