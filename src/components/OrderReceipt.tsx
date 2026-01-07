@@ -43,6 +43,7 @@ const OrderReceipt = ({ order }: OrderReceiptProps) => {
 
   const getPaymentMethodName = (method: string) => {
     const methods: Record<string, string> = {
+      cod: "Cash on Delivery",
       bank: "Bank Transfer",
       easypaisa: "EasyPaisa",
       jazzcash: "JazzCash",

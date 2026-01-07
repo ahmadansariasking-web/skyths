@@ -5,13 +5,14 @@ import Footer from "@/components/Footer";
 import ProductCard from "@/components/ProductCard";
 import { products, categories, Product } from "@/data/products";
 import { Button } from "@/components/ui/button";
+import { useCart } from "@/contexts/CartContext";
 
 const Shop = () => {
-  const [cartItems, setCartItems] = useState<Product[]>([]);
+  const { addToCart } = useCart();
   const [selectedCategory, setSelectedCategory] = useState("All");
 
   const handleAddToCart = (product: Product) => {
-    setCartItems((prev) => [...prev, product]);
+    addToCart(product);
     toast.success(`${product.name} added to cart!`, {
       description: `PKR ${product.price.toLocaleString()}`,
     });
@@ -24,7 +25,7 @@ const Shop = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      <Navbar cartCount={cartItems.length} />
+      <Navbar />
 
       <main className="pt-32 pb-24">
         <div className="container mx-auto px-4">
