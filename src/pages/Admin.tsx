@@ -181,54 +181,9 @@ const Admin = () => {
     { id: "settings" as TabType, name: "Settings", icon: Settings },
   ];
 
-  // Login Screen
-  if (!isAuthenticated) {
-    return (
-      <div className="min-h-screen bg-background flex items-center justify-center p-4">
-        <div className="w-full max-w-md animate-fade-in">
-          <div className="text-center mb-8">
-            <img src={logo} alt="Skyths" className="w-24 h-24 mx-auto mb-4" />
-            <h1 className="font-serif text-3xl font-bold text-gradient-copper">Admin Panel</h1>
-            <p className="text-muted-foreground mt-2">Sign in to manage your store</p>
-          </div>
-
-          <form onSubmit={handleLogin} className="bg-card rounded-xl p-8 border border-border space-y-6 shadow-xl">
-            <div>
-              <label className="block text-sm font-medium mb-2">Email</label>
-              <input
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                className="w-full h-12 px-4 bg-background border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary transition-all"
-                placeholder="admin@skyths.com"
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium mb-2">Password</label>
-              <input
-                type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                className="w-full h-12 px-4 bg-background border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary transition-all"
-                placeholder="••••••••"
-              />
-            </div>
-            <Button type="submit" variant="hero" size="lg" className="w-full">
-              Sign In to Admin
-            </Button>
-          </form>
-
-          <div className="flex gap-4 mt-6">
-            <Button variant="ghost" className="flex-1" onClick={() => navigate("/")}>
-              ← Back to Store
-            </Button>
-            <Button variant="outline" className="flex-1" onClick={() => navigate("/employee")}>
-              Employee Login →
-            </Button>
-          </div>
-        </div>
-      </div>
-    );
+  // Show loading if not authenticated yet
+  if (!isAuthenticated || user?.role !== "admin") {
+    return null;
   }
 
   // Order Receipt Modal
