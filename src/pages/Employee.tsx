@@ -109,51 +109,6 @@ const Employee = () => {
     return null;
   }
 
-  // Login Screen
-  if (!isAuthenticated) {
-    return (
-      <div className="min-h-screen bg-background flex items-center justify-center p-4">
-        <div className="w-full max-w-md animate-fade-in">
-          <div className="text-center mb-8">
-            <img src={logo} alt="Skyths" className="w-20 h-20 mx-auto mb-4" />
-            <h1 className="font-serif text-3xl font-bold text-gradient-copper">Employee Portal</h1>
-            <p className="text-muted-foreground mt-2">Sign in to manage orders</p>
-          </div>
-
-          <form onSubmit={handleLogin} className="bg-card rounded-xl p-6 border border-border space-y-6">
-            <div>
-              <label className="block text-sm font-medium mb-2">Email</label>
-              <input
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                className="w-full h-12 px-4 bg-background border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
-                placeholder="employee@skyth.com"
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium mb-2">Password</label>
-              <input
-                type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                className="w-full h-12 px-4 bg-background border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
-                placeholder="••••••••"
-              />
-            </div>
-            <Button type="submit" variant="hero" size="lg" className="w-full">
-              Sign In
-            </Button>
-          </form>
-
-          <Button variant="ghost" className="w-full mt-4" onClick={() => navigate("/")}>
-            ← Back to Store
-          </Button>
-        </div>
-      </div>
-    );
-  }
-
   // Order Receipt View
   if (selectedOrder) {
     return (
