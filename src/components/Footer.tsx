@@ -9,10 +9,10 @@ const Footer = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12">
           {/* Brand */}
           <div>
-            <Link to="/" className="flex items-center gap-3 mb-6">
-              <img src={logo} alt="Skyths" className="h-16 w-16 object-contain" />
-              <span className="font-serif text-2xl font-bold text-gradient-copper">
-                SKYTHS
+            <Link to="/" className="flex items-center gap-1 mb-6">
+              <img src={logo} alt="Skyths" className="h-12 w-12 object-contain" />
+              <span className="font-serif text-2xl font-bold text-white">
+                KYTHS
               </span>
             </Link>
             <p className="text-muted-foreground mb-6">

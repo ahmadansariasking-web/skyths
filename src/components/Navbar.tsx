@@ -39,14 +39,14 @@ const Navbar = () => {
       <div className="container mx-auto px-4">
         <div className="flex items-center justify-between h-20">
           {/* Logo */}
-          <Link to="/" className="flex items-center gap-3 group">
+          <Link to="/" className="flex items-center gap-1 group">
             <img
               src={logo}
               alt="Skyths"
-              className="h-14 w-14 object-contain transition-transform duration-300 group-hover:scale-105"
+              className="h-10 w-10 object-contain transition-transform duration-300 group-hover:scale-105"
             />
-            <span className="font-serif text-2xl font-bold text-gradient-copper hidden sm:block">
-              SKYTHS
+            <span className="font-serif text-2xl font-bold text-white hidden sm:block">
+              KYTHS
             </span>
           </Link>
 
