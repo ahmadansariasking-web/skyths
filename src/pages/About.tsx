@@ -49,10 +49,9 @@ const About = () => {
           {/* Story Section */}
           <div className="grid md:grid-cols-2 gap-12 items-center mb-24 animate-fade-in">
             <div className="relative">
-              <div className="aspect-square rounded-2xl bg-gradient-to-br from-primary/20 to-accent/20 flex items-center justify-center">
-                <img src={logo} alt="Skyths Logo" className="w-48 h-48 opacity-80" />
+              <div className="aspect-square rounded-2xl bg-transparent flex items-center justify-center">
+                <img src={logo} alt="Skyths Logo" className="w-full h-full object-contain" />
               </div>
-              <div className="absolute -bottom-6 -right-6 w-32 h-32 bg-primary/10 rounded-xl blur-2xl" />
             </div>
             <div>
               <h2 className="font-serif text-3xl font-bold mb-6">
