@@ -17,7 +17,7 @@ const Auth = () => {
   });
   const navigate = useNavigate();
   const location = useLocation();
-  const { login, isAuthenticated, user } = useAuth();
+  const { login, signup, loginWithGoogle, isAuthenticated, user } = useAuth();
 
   // Get redirect path from query params
   const searchParams = new URLSearchParams(location.search);
@@ -36,10 +36,9 @@ const Auth = () => {
     }
   }, [isAuthenticated, user, navigate, redirectTo]);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    // Basic validation
     if (!formData.email || !formData.password) {
       toast.error("Please fill in all required fields");
       return;
@@ -50,28 +49,37 @@ const Auth = () => {
       return;
     }
 
-    const result = login(formData.email, formData.password, formData.name);
+    if (!isLogin) {
+      const res = await signup(formData.email, formData.password, formData.name);
+      if (res.success) {
+        toast.success("Account created!", { description: "Check your email to confirm your account." });
+      } else {
+        toast.error(res.error || "Signup failed");
+      }
+      return;
+    }
+
+    const result = await login(formData.email, formData.password, formData.name);
 
     if (result.success) {
       if (result.role === "admin") {
-        toast.success("Welcome back, Admin!", {
-          description: "Redirecting to Admin Panel...",
-        });
+        toast.success("Welcome back, Admin!", { description: "Redirecting to Admin Panel..." });
         setTimeout(() => navigate("/admin"), 500);
       } else if (result.role === "employee") {
-        toast.success("Welcome, Employee!", {
-          description: "Redirecting to Employee Portal...",
-        });
+        toast.success("Welcome, Employee!", { description: "Redirecting to Employee Portal..." });
         setTimeout(() => navigate("/employee"), 500);
       } else {
-        toast.success(isLogin ? "Welcome back!" : "Account created successfully!", {
-          description: "Redirecting...",
-        });
+        toast.success("Welcome back!", { description: "Redirecting..." });
         setTimeout(() => navigate(redirectTo), 500);
       }
     } else {
       toast.error(result.error || "Login failed");
     }
+  };
+
+  const handleGoogle = async () => {
+    const res = await loginWithGoogle();
+    if (!res.success) toast.error(res.error || "Google sign-in failed");
   };
 
   return (
