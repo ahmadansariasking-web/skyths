@@ -1,4 +1,7 @@
 import { createContext, useContext, useState, useEffect, ReactNode } from "react";
+import { supabase } from "@/integrations/supabase/client";
+import { lovable } from "@/integrations/lovable";
+import type { Session } from "@supabase/supabase-js";
 
 export type UserRole = "admin" | "employee" | "customer";
 
@@ -11,141 +14,82 @@ interface User {
 interface AuthContextType {
   user: User | null;
   isAuthenticated: boolean;
-  login: (email: string, password: string, name?: string) => { success: boolean; role: UserRole | null; error?: string };
-  logout: () => void;
+  login: (email: string, password: string, name?: string) => Promise<{ success: boolean; role: UserRole | null; error?: string }>;
+  signup: (email: string, password: string, name: string) => Promise<{ success: boolean; error?: string }>;
+  loginWithGoogle: () => Promise<{ success: boolean; error?: string }>;
+  logout: () => Promise<void>;
   isLoading: boolean;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-// Session timeout in milliseconds (5 minutes)
-const SESSION_TIMEOUT = 5 * 60 * 1000;
-
-// Admin credentials
 const ADMIN_EMAIL = "ad@skyths.com";
-const ADMIN_PASSWORD = "admin@20206";
-
-// Employee credentials
 const EMPLOYEE_EMAIL = "employee@skyth.com";
-const EMPLOYEE_PASSWORD = "employee@2000";
+
+const deriveRole = (email: string): UserRole => {
+  if (email === ADMIN_EMAIL) return "admin";
+  if (email === EMPLOYEE_EMAIL) return "employee";
+  return "customer";
+};
+
+const sessionToUser = (session: Session | null): User | null => {
+  if (!session?.user) return null;
+  const email = session.user.email ?? "";
+  const name =
+    (session.user.user_metadata?.full_name as string | undefined) ||
+    (session.user.user_metadata?.name as string | undefined) ||
+    email.split("@")[0];
+  return { email, name, role: deriveRole(email) };
+};
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    // Check for existing session on mount
-    checkSession();
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      setUser(sessionToUser(session));
+    });
 
-    // Set up session timeout check
-    const interval = setInterval(checkSession, 30000); // Check every 30 seconds
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setUser(sessionToUser(session));
+      setIsLoading(false);
+    });
 
-    // Handle page unload - logout on exit
-    const handleBeforeUnload = () => {
-      // We don't clear immediately, but mark the session for expiry
-      const loginTime = localStorage.getItem("skyths_login_time");
-      if (loginTime) {
-        localStorage.setItem("skyths_session_pending_logout", "true");
-      }
-    };
-
-    // Handle visibility change - check session when tab becomes visible
-    const handleVisibilityChange = () => {
-      if (document.visibilityState === "visible") {
-        checkSession();
-      }
-    };
-
-    window.addEventListener("beforeunload", handleBeforeUnload);
-    document.addEventListener("visibilitychange", handleVisibilityChange);
-
-    return () => {
-      clearInterval(interval);
-      window.removeEventListener("beforeunload", handleBeforeUnload);
-      document.removeEventListener("visibilitychange", handleVisibilityChange);
-    };
+    return () => subscription.unsubscribe();
   }, []);
 
-  const checkSession = () => {
-    const storedUser = localStorage.getItem("skyths_user");
-    const loginTime = localStorage.getItem("skyths_login_time");
-    const pendingLogout = localStorage.getItem("skyths_session_pending_logout");
-
-    if (storedUser && loginTime) {
-      const elapsed = Date.now() - parseInt(loginTime);
-      
-      // Check if session expired (5 minutes) or pending logout from previous session
-      if (elapsed > SESSION_TIMEOUT || pendingLogout === "true") {
-        logout();
-        setIsLoading(false);
-        return;
-      }
-
-      try {
-        const parsedUser = JSON.parse(storedUser);
-        setUser(parsedUser);
-      } catch {
-        logout();
-      }
-    }
-    setIsLoading(false);
+  const login = async (email: string, password: string) => {
+    const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+    if (error) return { success: false, role: null, error: error.message };
+    const u = sessionToUser(data.session);
+    return { success: true, role: u?.role ?? "customer" };
   };
 
-  const login = (email: string, password: string, name?: string): { success: boolean; role: UserRole | null; error?: string } => {
-    // Clear any pending logout flag
-    localStorage.removeItem("skyths_session_pending_logout");
-
-    // Check admin credentials
-    if (email === ADMIN_EMAIL && password === ADMIN_PASSWORD) {
-      const adminUser: User = {
-        email: ADMIN_EMAIL,
-        name: "Admin",
-        role: "admin",
-      };
-      setUser(adminUser);
-      localStorage.setItem("skyths_user", JSON.stringify(adminUser));
-      localStorage.setItem("skyths_login_time", Date.now().toString());
-      localStorage.setItem("skyths_admin_auth", "true");
-      return { success: true, role: "admin" };
-    }
-
-    // Check employee credentials
-    if (email === EMPLOYEE_EMAIL && password === EMPLOYEE_PASSWORD) {
-      const employeeUser: User = {
-        email: EMPLOYEE_EMAIL,
-        name: "Employee",
-        role: "employee",
-      };
-      setUser(employeeUser);
-      localStorage.setItem("skyths_user", JSON.stringify(employeeUser));
-      localStorage.setItem("skyths_login_time", Date.now().toString());
-      localStorage.setItem("skyths_employee_auth", "true");
-      return { success: true, role: "employee" };
-    }
-
-    // For regular customers (demo login - any email/password works)
-    if (email && password) {
-      const customerUser: User = {
-        email: email,
-        name: name || email.split("@")[0],
-        role: "customer",
-      };
-      setUser(customerUser);
-      localStorage.setItem("skyths_user", JSON.stringify(customerUser));
-      localStorage.setItem("skyths_login_time", Date.now().toString());
-      return { success: true, role: "customer" };
-    }
-
-    return { success: false, role: null, error: "Invalid credentials" };
+  const signup = async (email: string, password: string, name: string) => {
+    const { error } = await supabase.auth.signUp({
+      email,
+      password,
+      options: {
+        emailRedirectTo: `${window.location.origin}/`,
+        data: { full_name: name },
+      },
+    });
+    if (error) return { success: false, error: error.message };
+    return { success: true };
   };
 
-  const logout = () => {
+  const loginWithGoogle = async () => {
+    const result = await lovable.auth.signInWithOAuth("google", {
+      redirect_uri: window.location.origin,
+    });
+    if (result.error) return { success: false, error: result.error.message };
+    return { success: true };
+  };
+
+  const logout = async () => {
+    await supabase.auth.signOut();
     setUser(null);
-    localStorage.removeItem("skyths_user");
-    localStorage.removeItem("skyths_login_time");
-    localStorage.removeItem("skyths_admin_auth");
-    localStorage.removeItem("skyths_employee_auth");
-    localStorage.removeItem("skyths_session_pending_logout");
   };
 
   return (
@@ -154,6 +98,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         user,
         isAuthenticated: !!user,
         login,
+        signup,
+        loginWithGoogle,
         logout,
         isLoading,
       }}
@@ -165,8 +111,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
 export const useAuth = () => {
   const context = useContext(AuthContext);
-  if (context === undefined) {
-    throw new Error("useAuth must be used within an AuthProvider");
-  }
+  if (context === undefined) throw new Error("useAuth must be used within an AuthProvider");
   return context;
 };
