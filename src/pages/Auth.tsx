@@ -155,6 +155,19 @@ const Auth = () => {
               >
                 Forgot password?
               </button>
+            </div>
+          )}
+
+          <Button variant="hero" size="lg" className="w-full">
+            {isLogin ? "Sign In" : "Create Account"}
+          </Button>
+        </form>
+
+        {/* Divider */}
+        <div className="flex items-center gap-4 my-8">
+          <div className="flex-1 h-px bg-border" />
+          <span className="text-muted-foreground text-sm">or</span>
+          <div className="flex-1 h-px bg-border" />
         </div>
 
         {/* Google Sign-In */}
@@ -174,19 +187,6 @@ const Auth = () => {
           Continue with Google
         </Button>
 
-          )}
-
-          <Button variant="hero" size="lg" className="w-full">
-            {isLogin ? "Sign In" : "Create Account"}
-          </Button>
-        </form>
-
-        {/* Divider */}
-        <div className="flex items-center gap-4 my-8">
-          <div className="flex-1 h-px bg-border" />
-          <span className="text-muted-foreground text-sm">or</span>
-          <div className="flex-1 h-px bg-border" />
-        </div>
 
         {/* Toggle */}
         <p className="text-center text-muted-foreground">
