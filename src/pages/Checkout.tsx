@@ -191,11 +191,14 @@ const Checkout = () => {
 
               <OrderReceipt order={orderData} />
 
-              <div className="flex justify-center gap-4 mt-8">
+              <div className="flex justify-center gap-4 mt-8 flex-wrap">
                 <Button variant="outline" onClick={() => navigate("/shop")}>
                   Continue Shopping
                 </Button>
-                <Button variant="hero" onClick={() => window.print()}>
+                <Button variant="hero" onClick={() => navigate(`/track/${orderData.orderId}`)}>
+                  Track Order
+                </Button>
+                <Button variant="outline" onClick={() => window.print()}>
                   Print Receipt
                 </Button>
               </div>
