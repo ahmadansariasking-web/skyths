@@ -10,6 +10,7 @@ import Footer from "@/components/Footer";
 import OrderReceipt from "@/components/OrderReceipt";
 import { useCart } from "@/contexts/CartContext";
 import { useAuth } from "@/contexts/AuthContext";
+import { supabase } from "@/integrations/supabase/client";
 
 const Checkout = () => {
   const navigate = useNavigate();
@@ -111,12 +112,12 @@ const Checkout = () => {
 
     setIsProcessing(true);
 
-    // Simulate payment processing
-    await new Promise((resolve) => setTimeout(resolve, 2000));
-
     const orderId = generateOrderId();
-    const order = {
-      orderId,
+    const status = paymentMethod === "cod" ? "pending" : "awaiting_verification";
+
+    const { error } = await supabase.from("orders").insert({
+      order_number: orderId,
+      user_id: user?.id,
       customer: {
         name: formData.name,
         email: formData.email,
@@ -131,16 +132,29 @@ const Checkout = () => {
       subtotal,
       shipping,
       total,
-      paymentMethod,
-      paymentSlip: paymentSlip || null,
-      paymentSlipName: paymentSlipName || null,
-      status: paymentMethod === "cod" ? "pending" : "awaiting_verification",
+      payment_method: paymentMethod,
+      payment_slip: paymentSlip,
+      payment_slip_name: paymentSlipName,
+      status,
+    });
+
+    if (error) {
+      setIsProcessing(false);
+      toast.error("Failed to place order", { description: error.message });
+      return;
+    }
+
+    const order = {
+      orderId,
+      customer: {
+        name: formData.name, email: formData.email, phone1: formData.phone1,
+        phone2: formData.phone2, address: formData.address, city: formData.city,
+        postalCode: formData.postalCode, comments: formData.comments,
+      },
+      items: cartItems, subtotal, shipping, total,
+      paymentMethod, paymentSlip, paymentSlipName, status,
       createdAt: new Date().toISOString(),
     };
-
-    // Save order to localStorage for demo
-    const existingOrders = JSON.parse(localStorage.getItem("skyths_orders") || "[]");
-    localStorage.setItem("skyths_orders", JSON.stringify([...existingOrders, order]));
 
     setOrderData(order);
     setOrderComplete(true);
@@ -148,7 +162,7 @@ const Checkout = () => {
     clearCart();
 
     toast.success("Order placed successfully!", {
-      description: `Your order ID is ${orderId}`,
+      description: `Track your order: ${orderId}`,
     });
   };
 
