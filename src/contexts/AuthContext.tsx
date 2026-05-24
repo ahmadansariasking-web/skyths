@@ -6,6 +6,7 @@ import type { Session } from "@supabase/supabase-js";
 export type UserRole = "admin" | "employee" | "customer";
 
 interface User {
+  id: string;
   email: string;
   name: string;
   role: UserRole;
@@ -39,7 +40,7 @@ const sessionToUser = (session: Session | null): User | null => {
     (session.user.user_metadata?.full_name as string | undefined) ||
     (session.user.user_metadata?.name as string | undefined) ||
     email.split("@")[0];
-  return { email, name, role: deriveRole(email) };
+  return { id: session.user.id, email, name, role: deriveRole(email) };
 };
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {

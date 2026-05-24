@@ -14,13 +14,66 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      orders: {
+        Row: {
+          created_at: string
+          customer: Json
+          id: string
+          items: Json
+          order_number: string
+          payment_method: string
+          payment_slip: string | null
+          payment_slip_name: string | null
+          shipping: number
+          status: string
+          subtotal: number
+          total: number
+          tracking_note: string | null
+          updated_at: string
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          customer: Json
+          id?: string
+          items: Json
+          order_number: string
+          payment_method: string
+          payment_slip?: string | null
+          payment_slip_name?: string | null
+          shipping?: number
+          status?: string
+          subtotal?: number
+          total?: number
+          tracking_note?: string | null
+          updated_at?: string
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          customer?: Json
+          id?: string
+          items?: Json
+          order_number?: string
+          payment_method?: string
+          payment_slip?: string | null
+          payment_slip_name?: string | null
+          shipping?: number
+          status?: string
+          subtotal?: number
+          total?: number
+          tracking_note?: string | null
+          updated_at?: string
+          user_id?: string | null
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      is_staff: { Args: never; Returns: boolean }
     }
     Enums: {
       [_ in never]: never

@@ -17,6 +17,8 @@ import { toast } from "sonner";
 import logo from "@/assets/skyths-logo.png";
 import OrderReceipt from "@/components/OrderReceipt";
 import { useAuth } from "@/contexts/AuthContext";
+import { supabase } from "@/integrations/supabase/client";
+import { Input } from "@/components/ui/input";
 
 interface Order {
   orderId: string;
@@ -57,18 +59,47 @@ const Employee = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const printRef = useRef<HTMLDivElement>(null);
 
+  const [trackingNote, setTrackingNote] = useState("");
+
   useEffect(() => {
-    // Redirect if not authenticated as employee
     if (!isAuthenticated || user?.role !== "employee") {
       navigate("/auth");
       return;
     }
     loadOrders();
+
+    const channel = supabase
+      .channel("employee-orders")
+      .on(
+        "postgres_changes",
+        { event: "*", schema: "public", table: "orders" },
+        () => loadOrders()
+      )
+      .subscribe();
+    return () => { supabase.removeChannel(channel); };
   }, [isAuthenticated, user, navigate]);
 
-  const loadOrders = () => {
-    const storedOrders = JSON.parse(localStorage.getItem("skyths_orders") || "[]");
-    setOrders(storedOrders);
+  const mapRow = (r: any): Order => ({
+    orderId: r.order_number,
+    customer: r.customer,
+    items: r.items,
+    subtotal: Number(r.subtotal),
+    shipping: Number(r.shipping),
+    total: Number(r.total),
+    paymentMethod: r.payment_method,
+    paymentSlip: r.payment_slip,
+    paymentSlipName: r.payment_slip_name,
+    status: r.status,
+    createdAt: r.created_at,
+  });
+
+  const loadOrders = async () => {
+    const { data, error } = await supabase
+      .from("orders")
+      .select("*")
+      .order("created_at", { ascending: false });
+    if (error) { toast.error("Failed to load orders"); return; }
+    setOrders((data || []).map(mapRow));
   };
 
   const handleLogout = () => {
@@ -77,13 +108,15 @@ const Employee = () => {
     toast.success("Logged out successfully");
   };
 
-  const updateOrderStatus = (orderId: string, status: string) => {
-    const updatedOrders = orders.map((order) =>
-      order.orderId === orderId ? { ...order, status } : order
-    );
-    setOrders(updatedOrders);
-    localStorage.setItem("skyths_orders", JSON.stringify(updatedOrders));
-    toast.success(`Order ${orderId} status updated to ${status}`);
+  const updateOrderStatus = async (orderId: string, status: string, note?: string) => {
+    const payload: any = { status };
+    if (note !== undefined) payload.tracking_note = note;
+    const { error } = await supabase
+      .from("orders")
+      .update(payload)
+      .eq("order_number", orderId);
+    if (error) { toast.error("Update failed", { description: error.message }); return; }
+    toast.success(`Order ${orderId} updated`);
   };
 
   const handlePrint = () => {
@@ -126,16 +159,16 @@ const Employee = () => {
           <div ref={printRef}>
             <OrderReceipt order={selectedOrder} showPaymentSlip={true} />
           </div>
-          <div className="mt-6 p-6 bg-card rounded-xl border border-border">
-            <h3 className="font-serif font-semibold mb-4">Update Order Status</h3>
+          <div className="mt-6 p-6 bg-card rounded-xl border border-border space-y-4">
+            <h3 className="font-serif font-semibold">Update Order Status</h3>
             <div className="flex flex-wrap gap-2">
               {["pending", "confirmed", "processing", "shipped", "delivered", "cancelled"].map((status) => (
                 <Button
                   key={status}
                   variant={selectedOrder.status === status ? "hero" : "outline"}
                   size="sm"
-                  onClick={() => {
-                    updateOrderStatus(selectedOrder.orderId, status);
+                  onClick={async () => {
+                    await updateOrderStatus(selectedOrder.orderId, status, trackingNote || undefined);
                     setSelectedOrder({ ...selectedOrder, status });
                   }}
                   className="capitalize"
@@ -143,6 +176,15 @@ const Employee = () => {
                   {status}
                 </Button>
               ))}
+            </div>
+            <div>
+              <label className="block text-sm font-medium mb-2">Tracking note (visible to customer)</label>
+              <Input
+                placeholder="e.g. Dispatched via TCS, tracking #12345"
+                value={trackingNote}
+                onChange={(e) => setTrackingNote(e.target.value)}
+              />
+              <p className="text-xs text-muted-foreground mt-1">Saved with the next status update.</p>
             </div>
           </div>
         </div>

@@ -17,6 +17,7 @@ import Employee from "./pages/Employee";
 import FAQs from "./pages/FAQs";
 import ShippingInfo from "./pages/ShippingInfo";
 import NotFound from "./pages/NotFound";
+import OrderTracking from "./pages/OrderTracking";
 import { ChatBot } from "@/components/ChatBot";
 
 const queryClient = new QueryClient();
@@ -41,6 +42,8 @@ const App = () => (
               <Route path="/employee" element={<Employee />} />
               <Route path="/faqs" element={<FAQs />} />
               <Route path="/shipping-info" element={<ShippingInfo />} />
+              <Route path="/track" element={<OrderTracking />} />
+              <Route path="/track/:orderId" element={<OrderTracking />} />
               {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
               <Route path="*" element={<NotFound />} />
             </Routes>
