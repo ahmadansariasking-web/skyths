@@ -128,7 +128,7 @@ const Checkout = () => {
         postalCode: formData.postalCode,
         comments: formData.comments,
       },
-      items: cartItems,
+      items: cartItems as any,
       subtotal,
       shipping,
       total,
