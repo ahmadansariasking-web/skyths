@@ -159,16 +159,16 @@ const Employee = () => {
           <div ref={printRef}>
             <OrderReceipt order={selectedOrder} showPaymentSlip={true} />
           </div>
-          <div className="mt-6 p-6 bg-card rounded-xl border border-border">
-            <h3 className="font-serif font-semibold mb-4">Update Order Status</h3>
+          <div className="mt-6 p-6 bg-card rounded-xl border border-border space-y-4">
+            <h3 className="font-serif font-semibold">Update Order Status</h3>
             <div className="flex flex-wrap gap-2">
               {["pending", "confirmed", "processing", "shipped", "delivered", "cancelled"].map((status) => (
                 <Button
                   key={status}
                   variant={selectedOrder.status === status ? "hero" : "outline"}
                   size="sm"
-                  onClick={() => {
-                    updateOrderStatus(selectedOrder.orderId, status);
+                  onClick={async () => {
+                    await updateOrderStatus(selectedOrder.orderId, status, trackingNote || undefined);
                     setSelectedOrder({ ...selectedOrder, status });
                   }}
                   className="capitalize"
@@ -176,6 +176,15 @@ const Employee = () => {
                   {status}
                 </Button>
               ))}
+            </div>
+            <div>
+              <label className="block text-sm font-medium mb-2">Tracking note (visible to customer)</label>
+              <Input
+                placeholder="e.g. Dispatched via TCS, tracking #12345"
+                value={trackingNote}
+                onChange={(e) => setTrackingNote(e.target.value)}
+              />
+              <p className="text-xs text-muted-foreground mt-1">Saved with the next status update.</p>
             </div>
           </div>
         </div>
