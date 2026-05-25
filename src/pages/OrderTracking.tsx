@@ -40,9 +40,7 @@ const OrderTracking = () => {
 
     const load = async () => {
       const { data, error } = await supabase
-        .from("orders")
-        .select("*")
-        .eq("order_number", orderId)
+        .rpc("get_order_tracking", { _order_number: orderId })
         .maybeSingle();
       if (!active) return;
       if (error || !data) {
@@ -61,11 +59,10 @@ const OrderTracking = () => {
       .on(
         "postgres_changes",
         { event: "UPDATE", schema: "public", table: "orders", filter: `order_number=eq.${orderId}` },
-        (payload) => {
-          setOrder(payload.new);
-          toast.success("Order status updated", {
-            description: `Now: ${(payload.new as any).status}`,
-          });
+        () => {
+          // Reload via RPC to keep PII-safe fields only
+          load();
+          toast.success("Order status updated");
         }
       )
       .subscribe();
@@ -74,6 +71,7 @@ const OrderTracking = () => {
       active = false;
       supabase.removeChannel(channel);
     };
+
   }, [orderId]);
 
   const handleSearch = (e: React.FormEvent) => {
@@ -253,20 +251,8 @@ const OrderTracking = () => {
                 </div>
               </div>
 
-              {/* Delivery */}
-              <div className="bg-card border border-border rounded-xl p-6">
-                <h2 className="font-serif text-xl font-semibold mb-4">Delivery</h2>
-                <div className="text-sm space-y-1 text-muted-foreground">
-                  <div><span className="text-foreground font-medium">{(order.customer as any).name}</span></div>
-                  <div>{(order.customer as any).address}</div>
-                  <div>
-                    {(order.customer as any).city}
-                    {(order.customer as any).postalCode ? `, ${(order.customer as any).postalCode}` : ""}
-                  </div>
-                  <div>{(order.customer as any).phone1}</div>
-                </div>
-              </div>
             </div>
+
           )}
         </div>
       </main>
