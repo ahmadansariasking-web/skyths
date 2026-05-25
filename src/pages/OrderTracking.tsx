@@ -40,9 +40,7 @@ const OrderTracking = () => {
 
     const load = async () => {
       const { data, error } = await supabase
-        .from("orders")
-        .select("*")
-        .eq("order_number", orderId)
+        .rpc("get_order_tracking", { _order_number: orderId })
         .maybeSingle();
       if (!active) return;
       if (error || !data) {
@@ -61,11 +59,10 @@ const OrderTracking = () => {
       .on(
         "postgres_changes",
         { event: "UPDATE", schema: "public", table: "orders", filter: `order_number=eq.${orderId}` },
-        (payload) => {
-          setOrder(payload.new);
-          toast.success("Order status updated", {
-            description: `Now: ${(payload.new as any).status}`,
-          });
+        () => {
+          // Reload via RPC to keep PII-safe fields only
+          load();
+          toast.success("Order status updated");
         }
       )
       .subscribe();
@@ -74,6 +71,7 @@ const OrderTracking = () => {
       active = false;
       supabase.removeChannel(channel);
     };
+
   }, [orderId]);
 
   const handleSearch = (e: React.FormEvent) => {
