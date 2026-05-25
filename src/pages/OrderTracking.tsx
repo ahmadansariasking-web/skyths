@@ -251,20 +251,8 @@ const OrderTracking = () => {
                 </div>
               </div>
 
-              {/* Delivery */}
-              <div className="bg-card border border-border rounded-xl p-6">
-                <h2 className="font-serif text-xl font-semibold mb-4">Delivery</h2>
-                <div className="text-sm space-y-1 text-muted-foreground">
-                  <div><span className="text-foreground font-medium">{(order.customer as any).name}</span></div>
-                  <div>{(order.customer as any).address}</div>
-                  <div>
-                    {(order.customer as any).city}
-                    {(order.customer as any).postalCode ? `, ${(order.customer as any).postalCode}` : ""}
-                  </div>
-                  <div>{(order.customer as any).phone1}</div>
-                </div>
-              </div>
             </div>
+
           )}
         </div>
       </main>
