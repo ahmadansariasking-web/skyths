@@ -25,6 +25,7 @@ import logo from "@/assets/skyths-logo.png";
 import OrderReceipt from "@/components/OrderReceipt";
 import { products as initialProducts, Product } from "@/data/products";
 import { useAuth } from "@/contexts/AuthContext";
+import { supabase } from "@/integrations/supabase/client";
 import {
   LineChart,
   Line,
@@ -72,6 +73,20 @@ interface Order {
   createdAt: string;
 }
 
+interface OrderRecord {
+  order_number: string;
+  customer: Order["customer"];
+  items: Order["items"];
+  subtotal: number;
+  shipping: number;
+  total: number;
+  payment_method: string;
+  payment_slip: string | null;
+  payment_slip_name: string | null;
+  status: string;
+  created_at: string;
+}
+
 interface Employee {
   id: string;
   name: string;
@@ -90,6 +105,7 @@ const Admin = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [orders, setOrders] = useState<Order[]>([]);
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
+  const [isLoadingOrders, setIsLoadingOrders] = useState(false);
   const [products, setProducts] = useState<Product[]>(initialProducts);
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
   const [showProductModal, setShowProductModal] = useState(false);
@@ -106,12 +122,55 @@ const Admin = () => {
       navigate("/auth");
       return;
     }
-    loadOrders();
+    void loadOrders();
+
+    const channel = supabase
+      .channel("admin-orders")
+      .on(
+        "postgres_changes",
+        { event: "*", schema: "public", table: "orders" },
+        () => void loadOrders(false)
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
   }, [isAuthenticated, user, navigate]);
 
-  const loadOrders = () => {
-    const storedOrders = JSON.parse(localStorage.getItem("skyths_orders") || "[]");
-    setOrders(storedOrders);
+  const mapRowToOrder = (row: OrderRecord): Order => ({
+    orderId: row.order_number,
+    customer: row.customer,
+    items: row.items,
+    subtotal: Number(row.subtotal),
+    shipping: Number(row.shipping),
+    total: Number(row.total),
+    paymentMethod: row.payment_method,
+    paymentSlip: row.payment_slip,
+    paymentSlipName: row.payment_slip_name,
+    status: row.status,
+    createdAt: row.created_at,
+  });
+
+  const loadOrders = async (showToast = false) => {
+    setIsLoadingOrders(true);
+    const { data, error } = await supabase
+      .from("orders")
+      .select("order_number, customer, items, subtotal, shipping, total, payment_method, payment_slip, payment_slip_name, status, created_at")
+      .order("created_at", { ascending: false });
+
+    setIsLoadingOrders(false);
+
+    if (error) {
+      toast.error("Failed to load orders", { description: error.message });
+      return;
+    }
+
+    setOrders((data ?? []).map(mapRowToOrder));
+
+    if (showToast) {
+      toast.success("Orders refreshed");
+    }
   };
 
   const handleLogout = () => {
@@ -120,12 +179,21 @@ const Admin = () => {
     toast.success("Logged out successfully");
   };
 
-  const updateOrderStatus = (orderId: string, status: string) => {
-    const updatedOrders = orders.map((order) =>
-      order.orderId === orderId ? { ...order, status } : order
+  const updateOrderStatus = async (orderId: string, status: string) => {
+    const { error } = await supabase
+      .from("orders")
+      .update({ status })
+      .eq("order_number", orderId);
+
+    if (error) {
+      toast.error("Failed to update order", { description: error.message });
+      return;
+    }
+
+    setOrders((current) =>
+      current.map((order) => (order.orderId === orderId ? { ...order, status } : order))
     );
-    setOrders(updatedOrders);
-    localStorage.setItem("skyths_orders", JSON.stringify(updatedOrders));
+    setSelectedOrder((current) => (current?.orderId === orderId ? { ...current, status } : current));
     toast.success(`Order ${orderId} status updated to ${status}`);
   };
 
@@ -395,9 +463,9 @@ const Admin = () => {
               </Button>
               <h1 className="font-serif text-xl font-bold capitalize">{activeTab}</h1>
             </div>
-            <Button variant="outline" size="sm" onClick={loadOrders}>
+            <Button variant="outline" size="sm" onClick={() => void loadOrders(true)}>
               <RefreshCw className="h-4 w-4 mr-2" />
-              Refresh
+              {isLoadingOrders ? "Loading..." : "Refresh"}
             </Button>
           </div>
         </header>
@@ -525,7 +593,7 @@ const Admin = () => {
                           </td>
                         </tr>
                       ))}
-                      {orders.length === 0 && (
+                      {!isLoadingOrders && orders.length === 0 && (
                         <tr>
                           <td colSpan={5} className="px-6 py-8 text-center text-muted-foreground">
                             No orders yet. Orders will appear here when customers make purchases.
@@ -683,7 +751,14 @@ const Admin = () => {
                           </td>
                         </tr>
                       ))}
-                      {orders.length === 0 && (
+                      {isLoadingOrders && (
+                        <tr>
+                          <td colSpan={7} className="px-6 py-8 text-center text-muted-foreground">
+                            Loading orders...
+                          </td>
+                        </tr>
+                      )}
+                      {!isLoadingOrders && orders.length === 0 && (
                         <tr>
                           <td colSpan={7} className="px-6 py-8 text-center text-muted-foreground">
                             No orders yet
