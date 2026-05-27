@@ -100,7 +100,7 @@ const COLORS = ["#C87533", "#B8860B", "#CD853F", "#D2691E", "#8B4513", "#A0522D"
 
 const Admin = () => {
   const navigate = useNavigate();
-  const { user, isAuthenticated, logout } = useAuth();
+  const { user, isAuthenticated, logout, isLoading } = useAuth();
   const [activeTab, setActiveTab] = useState<TabType>("dashboard");
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [orders, setOrders] = useState<Order[]>([]);
@@ -117,6 +117,8 @@ const Admin = () => {
   ]);
 
   useEffect(() => {
+    if (isLoading) return;
+
     // Redirect if not authenticated as admin
     if (!isAuthenticated || user?.role !== "admin") {
       navigate("/auth");
@@ -136,7 +138,7 @@ const Admin = () => {
     return () => {
       supabase.removeChannel(channel);
     };
-  }, [isAuthenticated, user, navigate]);
+  }, [isAuthenticated, user, navigate, isLoading]);
 
   const mapRowToOrder = (row: OrderRecord): Order => ({
     orderId: row.order_number,
@@ -250,6 +252,10 @@ const Admin = () => {
   ];
 
   // Show loading if not authenticated yet
+  if (isLoading) {
+    return null;
+  }
+
   if (!isAuthenticated || user?.role !== "admin") {
     return null;
   }
