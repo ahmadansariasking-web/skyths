@@ -24,23 +24,33 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-const ADMIN_EMAIL = "ad@skyths.com";
-const EMPLOYEE_EMAIL = "employee@skyth.com";
-
-const deriveRole = (email: string): UserRole => {
-  if (email === ADMIN_EMAIL) return "admin";
-  if (email === EMPLOYEE_EMAIL) return "employee";
-  return "customer";
-};
-
-const sessionToUser = (session: Session | null): User | null => {
+const baseUser = (session: Session | null): Omit<User, "role"> | null => {
   if (!session?.user) return null;
   const email = session.user.email ?? "";
   const name =
     (session.user.user_metadata?.full_name as string | undefined) ||
     (session.user.user_metadata?.name as string | undefined) ||
     email.split("@")[0];
-  return { id: session.user.id, email, name, role: deriveRole(email) };
+  return { id: session.user.id, email, name };
+};
+
+const fetchRole = async (userId: string): Promise<UserRole> => {
+  const { data, error } = await supabase
+    .from("user_roles")
+    .select("role")
+    .eq("user_id", userId);
+  if (error || !data?.length) return "customer";
+  const roles = data.map((r) => r.role as UserRole);
+  if (roles.includes("admin")) return "admin";
+  if (roles.includes("employee")) return "employee";
+  return "customer";
+};
+
+const resolveUser = async (session: Session | null): Promise<User | null> => {
+  const b = baseUser(session);
+  if (!b) return null;
+  const role = await fetchRole(b.id);
+  return { ...b, role };
 };
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
@@ -49,11 +59,21 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   useEffect(() => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-      setUser(sessionToUser(session));
+      const b = baseUser(session);
+      if (!b) {
+        setUser(null);
+        return;
+      }
+      // Optimistic non-privileged user; defer role lookup
+      setUser({ ...b, role: "customer" });
+      setTimeout(() => {
+        fetchRole(b.id).then((role) => setUser((prev) => (prev && prev.id === b.id ? { ...prev, role } : prev)));
+      }, 0);
     });
 
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setUser(sessionToUser(session));
+    supabase.auth.getSession().then(async ({ data: { session } }) => {
+      const u = await resolveUser(session);
+      setUser(u);
       setIsLoading(false);
     });
 
@@ -63,7 +83,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const login = async (email: string, password: string) => {
     const { data, error } = await supabase.auth.signInWithPassword({ email, password });
     if (error) return { success: false, role: null, error: error.message };
-    const u = sessionToUser(data.session);
+    const u = await resolveUser(data.session);
+    if (u) setUser(u);
     return { success: true, role: u?.role ?? "customer" };
   };
 
