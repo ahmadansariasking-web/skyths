@@ -12,7 +12,6 @@ type Msg = { role: "user" | "assistant"; content: string };
 const CHAT_URL = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/wallet-chat`;
 
 export const ChatBot = () => {
-export const ChatBot = () => {
   const { isAuthenticated } = useAuth();
   const [open, setOpen] = useState(false);
   const [input, setInput] = useState("");
