@@ -27,10 +27,26 @@ const statusIndex = (s: string) => {
 const OrderTracking = () => {
   const { orderId } = useParams();
   const navigate = useNavigate();
+  const { user, isAuthenticated } = useAuth();
   const [order, setOrder] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [searchInput, setSearchInput] = useState("");
   const [notFound, setNotFound] = useState(false);
+  const [myOrders, setMyOrders] = useState<Array<{ order_number: string; status: string; total: number; created_at: string }>>([]);
+
+  useEffect(() => {
+    if (!isAuthenticated || !user) {
+      setMyOrders([]);
+      return;
+    }
+    supabase
+      .from("orders")
+      .select("order_number,status,total,created_at")
+      .eq("user_id", user.id)
+      .order("created_at", { ascending: false })
+      .limit(10)
+      .then(({ data }) => setMyOrders((data as any) ?? []));
+  }, [isAuthenticated, user?.id]);
 
   useEffect(() => {
     if (!orderId) {
