@@ -135,23 +135,68 @@ const OrderTracking = () => {
             </div>
           )}
 
-          {!loading && !orderId && (
-            <div className="text-center py-16 text-muted-foreground bg-card border border-border rounded-xl">
-              <Package className="h-12 w-12 mx-auto mb-3 opacity-50" />
-              <p>Enter your order ID above to see live status.</p>
-            </div>
-          )}
+          {!loading && (!orderId || notFound) && (
+            <div className="space-y-6">
+              {notFound && (
+                <div className="text-center py-10 bg-card border border-destructive/30 rounded-xl">
+                  <XCircle className="h-12 w-12 mx-auto mb-3 text-destructive" />
+                  <p className="font-medium mb-1">Order not found</p>
+                  <p className="text-sm text-muted-foreground px-4">
+                    We couldn't find an order with that ID. Double-check the ID
+                    {isAuthenticated ? " or pick one from your recent orders below." : ", or sign in to see your orders."}
+                  </p>
+                </div>
+              )}
 
-          {!loading && notFound && (
-            <div className="text-center py-16 bg-card border border-border rounded-xl">
-              <XCircle className="h-12 w-12 mx-auto mb-3 text-destructive" />
-              <p className="font-medium mb-1">Order not found</p>
-              <p className="text-sm text-muted-foreground">
-                Check the ID, or make sure you're signed in with the account that placed it.
-              </p>
-              <Button asChild variant="outline" className="mt-4">
-                <Link to="/shop">Back to Shop</Link>
-              </Button>
+              {!notFound && !orderId && (
+                <div className="text-center py-10 text-muted-foreground bg-card border border-border rounded-xl">
+                  <Package className="h-12 w-12 mx-auto mb-3 opacity-50" />
+                  <p>Enter your order ID above to see live status.</p>
+                </div>
+              )}
+
+              {isAuthenticated && myOrders.length > 0 && (
+                <div className="bg-card border border-border rounded-xl p-6 animate-fade-in">
+                  <h2 className="font-serif text-xl font-semibold mb-4">Your recent orders</h2>
+                  <div className="divide-y divide-border">
+                    {myOrders.map((o) => (
+                      <button
+                        key={o.order_number}
+                        onClick={() => navigate(`/track/${o.order_number}`)}
+                        className="w-full flex items-center justify-between py-3 hover:bg-muted/40 px-2 -mx-2 rounded-lg transition-colors text-left"
+                      >
+                        <div>
+                          <div className="font-mono text-sm font-semibold">{o.order_number}</div>
+                          <div className="text-xs text-muted-foreground">
+                            {new Date(o.created_at).toLocaleDateString()} · PKR {Number(o.total).toLocaleString()}
+                          </div>
+                        </div>
+                        <div className="flex items-center gap-3">
+                          <span className="text-xs px-2 py-1 rounded-full bg-primary/10 text-primary capitalize">
+                            {o.status.replace(/_/g, " ")}
+                          </span>
+                          <ArrowRight className="h-4 w-4 text-muted-foreground" />
+                        </div>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {isAuthenticated && myOrders.length === 0 && (
+                <div className="text-center py-6 text-sm text-muted-foreground">
+                  You have no orders yet.{" "}
+                  <Link to="/shop" className="text-primary underline">Start shopping</Link>
+                </div>
+              )}
+
+              {!isAuthenticated && (
+                <div className="text-center">
+                  <Button asChild variant="outline">
+                    <Link to="/auth">Sign in to see your orders</Link>
+                  </Button>
+                </div>
+              )}
             </div>
           )}
 
