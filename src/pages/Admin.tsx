@@ -593,6 +593,13 @@ const Admin = () => {
                           </td>
                         </tr>
                       ))}
+                      {isLoadingOrders && (
+                        <tr>
+                          <td colSpan={5} className="px-6 py-8 text-center text-muted-foreground">
+                            Loading recent orders...
+                          </td>
+                        </tr>
+                      )}
                       {!isLoadingOrders && orders.length === 0 && (
                         <tr>
                           <td colSpan={5} className="px-6 py-8 text-center text-muted-foreground">
