@@ -49,10 +49,13 @@ const OrderTracking = () => {
   }, [isAuthenticated, user?.id]);
 
   useEffect(() => {
+    setNotFound(false);
+    setOrder(null);
     if (!orderId) {
       setLoading(false);
       return;
     }
+    setLoading(true);
     let active = true;
 
     const load = async () => {
