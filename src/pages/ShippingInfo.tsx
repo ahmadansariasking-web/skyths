@@ -197,11 +197,11 @@ const ShippingInfo = () => {
                 Contact Support
               </a>
               <a
-                href="tel:+923001234567"
+                href={`tel:${settings.phone.replace(/\s/g, "")}`}
                 className="inline-flex items-center gap-2 text-muted-foreground hover:text-primary transition-colors"
               >
                 <Phone className="h-5 w-5" />
-                +92 300 1234567
+                {settings.phone}
               </a>
             </div>
           </div>
