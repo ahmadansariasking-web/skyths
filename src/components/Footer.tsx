@@ -1,8 +1,10 @@
 import { Link } from "react-router-dom";
 import { Facebook, Instagram, Twitter, Mail, Phone, MapPin } from "lucide-react";
 import logo from "@/assets/skyths-logo.png";
+import { useSiteSettings } from "@/hooks/useSiteSettings";
 
 const Footer = () => {
+  const { settings } = useSiteSettings();
   return (
     <footer className="bg-card border-t border-border">
       <div className="container mx-auto px-4 py-16">
