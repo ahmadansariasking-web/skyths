@@ -1,8 +1,10 @@
 import { Truck, Clock, MapPin, Package, Shield, CreditCard, Phone } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
+import { useSiteSettings } from "@/hooks/useSiteSettings";
 
 const ShippingInfo = () => {
+  const { settings } = useSiteSettings();
   const deliveryZones = [
     { zone: "Major Cities", cities: "Lahore, Karachi, Islamabad, Rawalpindi, Faisalabad", time: "2-3 days" },
     { zone: "Other Cities", cities: "Multan, Peshawar, Quetta, Sialkot, Gujranwala", time: "3-5 days" },
