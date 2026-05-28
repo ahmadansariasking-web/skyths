@@ -110,6 +110,35 @@ const Admin = () => {
   const [products, setProducts] = useState<Product[]>(initialProducts);
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
   const [showProductModal, setShowProductModal] = useState(false);
+  const { settings: siteSettings, refresh: refreshSettings } = useSiteSettings();
+  const [settingsForm, setSettingsForm] = useState<SiteSettings>(siteSettings);
+  const [savingSettings, setSavingSettings] = useState(false);
+  useEffect(() => { setSettingsForm(siteSettings); }, [siteSettings]);
+  const updateSettingsField = <K extends keyof SiteSettings>(key: K, value: SiteSettings[K]) =>
+    setSettingsForm((prev) => ({ ...prev, [key]: value }));
+  const saveSiteSettings = async (successMsg = "Settings saved") => {
+    setSavingSettings(true);
+    const { error } = await supabase
+      .from("site_settings")
+      .update({
+        store_name: settingsForm.store_name,
+        contact_email: settingsForm.contact_email,
+        phone: settingsForm.phone,
+        shipping_fee: settingsForm.shipping_fee,
+        store_address: settingsForm.store_address,
+        bank_details: settingsForm.bank_details,
+        easypaisa_number: settingsForm.easypaisa_number,
+        jazzcash_number: settingsForm.jazzcash_number,
+      })
+      .eq("id", true);
+    setSavingSettings(false);
+    if (error) {
+      toast.error("Failed to save", { description: error.message });
+    } else {
+      toast.success(successMsg);
+      void refreshSettings();
+    }
+  };
   const [employees, setEmployees] = useState<Employee[]>([
     { id: "1", name: "Ali Hassan", email: "ali@skyths.com", role: "Master Craftsman", status: "active", assignedOrders: 3 },
     { id: "2", name: "Sara Khan", email: "sara@skyths.com", role: "Quality Inspector", status: "active", assignedOrders: 2 },
