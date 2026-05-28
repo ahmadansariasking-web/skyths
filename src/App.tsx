@@ -72,11 +72,15 @@ const App = () => {
               </Routes>
               <ChatBot />
             </BrowserRouter>
+            <AnimatePresence mode="wait">
+              {showIntro && <IntroAnimation key="intro" onComplete={handleIntroComplete} />}
+            </AnimatePresence>
           </CartProvider>
         </SiteSettingsProvider>
       </AuthProvider>
     </TooltipProvider>
   </QueryClientProvider>
-);
+  );
+};
 
 export default App;
