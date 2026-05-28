@@ -26,6 +26,7 @@ import OrderReceipt from "@/components/OrderReceipt";
 import { products as initialProducts, Product } from "@/data/products";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
+import { useSiteSettings, SiteSettings } from "@/hooks/useSiteSettings";
 import {
   LineChart,
   Line,
