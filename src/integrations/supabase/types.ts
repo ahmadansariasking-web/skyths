@@ -68,6 +68,45 @@ export type Database = {
         }
         Relationships: []
       }
+      site_settings: {
+        Row: {
+          bank_details: string
+          contact_email: string
+          easypaisa_number: string
+          id: boolean
+          jazzcash_number: string
+          phone: string
+          shipping_fee: number
+          store_address: string
+          store_name: string
+          updated_at: string
+        }
+        Insert: {
+          bank_details?: string
+          contact_email?: string
+          easypaisa_number?: string
+          id?: boolean
+          jazzcash_number?: string
+          phone?: string
+          shipping_fee?: number
+          store_address?: string
+          store_name?: string
+          updated_at?: string
+        }
+        Update: {
+          bank_details?: string
+          contact_email?: string
+          easypaisa_number?: string
+          id?: boolean
+          jazzcash_number?: string
+          phone?: string
+          shipping_fee?: number
+          store_address?: string
+          store_name?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       user_roles: {
         Row: {
           created_at: string

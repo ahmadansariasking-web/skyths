@@ -26,6 +26,7 @@ import OrderReceipt from "@/components/OrderReceipt";
 import { products as initialProducts, Product } from "@/data/products";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
+import { useSiteSettings, SiteSettings } from "@/hooks/useSiteSettings";
 import {
   LineChart,
   Line,
@@ -109,6 +110,35 @@ const Admin = () => {
   const [products, setProducts] = useState<Product[]>(initialProducts);
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
   const [showProductModal, setShowProductModal] = useState(false);
+  const { settings: siteSettings, refresh: refreshSettings } = useSiteSettings();
+  const [settingsForm, setSettingsForm] = useState<SiteSettings>(siteSettings);
+  const [savingSettings, setSavingSettings] = useState(false);
+  useEffect(() => { setSettingsForm(siteSettings); }, [siteSettings]);
+  const updateSettingsField = <K extends keyof SiteSettings>(key: K, value: SiteSettings[K]) =>
+    setSettingsForm((prev) => ({ ...prev, [key]: value }));
+  const saveSiteSettings = async (successMsg = "Settings saved") => {
+    setSavingSettings(true);
+    const { error } = await supabase
+      .from("site_settings")
+      .update({
+        store_name: settingsForm.store_name,
+        contact_email: settingsForm.contact_email,
+        phone: settingsForm.phone,
+        shipping_fee: settingsForm.shipping_fee,
+        store_address: settingsForm.store_address,
+        bank_details: settingsForm.bank_details,
+        easypaisa_number: settingsForm.easypaisa_number,
+        jazzcash_number: settingsForm.jazzcash_number,
+      })
+      .eq("id", true);
+    setSavingSettings(false);
+    if (error) {
+      toast.error("Failed to save", { description: error.message });
+    } else {
+      toast.success(successMsg);
+      void refreshSettings();
+    }
+  };
   const [employees, setEmployees] = useState<Employee[]>([
     { id: "1", name: "Ali Hassan", email: "ali@skyths.com", role: "Master Craftsman", status: "active", assignedOrders: 3 },
     { id: "2", name: "Sara Khan", email: "sara@skyths.com", role: "Quality Inspector", status: "active", assignedOrders: 2 },
@@ -995,7 +1025,8 @@ const Admin = () => {
                       <label className="block text-sm font-medium mb-2">Store Name</label>
                       <input
                         type="text"
-                        defaultValue="SKYTHS"
+                        value={settingsForm.store_name}
+                        onChange={(e) => updateSettingsField("store_name", e.target.value)}
                         className="w-full h-10 px-4 bg-background border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
                       />
                     </div>
@@ -1003,7 +1034,8 @@ const Admin = () => {
                       <label className="block text-sm font-medium mb-2">Contact Email</label>
                       <input
                         type="email"
-                        defaultValue="info@skyths.com"
+                        value={settingsForm.contact_email}
+                        onChange={(e) => updateSettingsField("contact_email", e.target.value)}
                         className="w-full h-10 px-4 bg-background border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
                       />
                     </div>
@@ -1011,7 +1043,8 @@ const Admin = () => {
                       <label className="block text-sm font-medium mb-2">Phone Number</label>
                       <input
                         type="text"
-                        defaultValue="+92 300 1234567"
+                        value={settingsForm.phone}
+                        onChange={(e) => updateSettingsField("phone", e.target.value)}
                         className="w-full h-10 px-4 bg-background border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
                       />
                     </div>
@@ -1019,7 +1052,8 @@ const Admin = () => {
                       <label className="block text-sm font-medium mb-2">Shipping Fee (PKR)</label>
                       <input
                         type="number"
-                        defaultValue="250"
+                        value={settingsForm.shipping_fee}
+                        onChange={(e) => updateSettingsField("shipping_fee", Number(e.target.value) || 0)}
                         className="w-full h-10 px-4 bg-background border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
                       />
                     </div>
@@ -1027,12 +1061,15 @@ const Admin = () => {
                   <div>
                     <label className="block text-sm font-medium mb-2">Store Address</label>
                     <textarea
-                      defaultValue="Lahore, Pakistan"
+                      value={settingsForm.store_address}
+                      onChange={(e) => updateSettingsField("store_address", e.target.value)}
                       rows={2}
                       className="w-full px-4 py-2 bg-background border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
                     />
                   </div>
-                  <Button variant="hero">Save Settings</Button>
+                  <Button variant="hero" disabled={savingSettings} onClick={() => void saveSiteSettings("Store settings saved")}>
+                    {savingSettings ? "Saving..." : "Save Settings"}
+                  </Button>
                 </div>
               </div>
 
@@ -1042,7 +1079,8 @@ const Admin = () => {
                   <div>
                     <label className="block text-sm font-medium mb-2">Bank Account Details</label>
                     <textarea
-                      defaultValue="Bank: HBL&#10;Account: 1234567890&#10;Title: SKYTHS"
+                      value={settingsForm.bank_details}
+                      onChange={(e) => updateSettingsField("bank_details", e.target.value)}
                       rows={3}
                       className="w-full px-4 py-2 bg-background border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
                     />
@@ -1052,7 +1090,8 @@ const Admin = () => {
                       <label className="block text-sm font-medium mb-2">EasyPaisa Number</label>
                       <input
                         type="text"
-                        defaultValue="0300-1234567"
+                        value={settingsForm.easypaisa_number}
+                        onChange={(e) => updateSettingsField("easypaisa_number", e.target.value)}
                         className="w-full h-10 px-4 bg-background border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
                       />
                     </div>
@@ -1060,12 +1099,15 @@ const Admin = () => {
                       <label className="block text-sm font-medium mb-2">JazzCash Number</label>
                       <input
                         type="text"
-                        defaultValue="0300-1234567"
+                        value={settingsForm.jazzcash_number}
+                        onChange={(e) => updateSettingsField("jazzcash_number", e.target.value)}
                         className="w-full h-10 px-4 bg-background border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
                       />
                     </div>
                   </div>
-                  <Button variant="hero">Save Payment Settings</Button>
+                  <Button variant="hero" disabled={savingSettings} onClick={() => void saveSiteSettings("Payment settings saved")}>
+                    {savingSettings ? "Saving..." : "Save Payment Settings"}
+                  </Button>
                 </div>
               </div>
             </div>

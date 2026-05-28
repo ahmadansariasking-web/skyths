@@ -6,8 +6,10 @@ import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
+import { useSiteSettings } from "@/hooks/useSiteSettings";
 
 const Contact = () => {
+  const { settings } = useSiteSettings();
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -42,19 +44,19 @@ const Contact = () => {
     {
       icon: Mail,
       title: "Email Us",
-      value: "support@skyths.com",
+      value: settings.contact_email,
       description: "We respond within 24 hours",
     },
     {
       icon: Phone,
       title: "Call Us",
-      value: "+92 300 1234567",
+      value: settings.phone,
       description: "Mon-Sat, 9AM-6PM",
     },
     {
       icon: MapPin,
       title: "Visit Us",
-      value: "Lahore, Pakistan",
+      value: settings.store_address,
       description: "Main Branch",
     },
     {

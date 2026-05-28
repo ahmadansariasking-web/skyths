@@ -11,11 +11,13 @@ import OrderReceipt from "@/components/OrderReceipt";
 import { useCart } from "@/contexts/CartContext";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
+import { useSiteSettings } from "@/hooks/useSiteSettings";
 
 const Checkout = () => {
   const navigate = useNavigate();
   const { cartItems, getCartTotal, clearCart } = useCart();
   const { isAuthenticated, user } = useAuth();
+  const { settings } = useSiteSettings();
   const [paymentMethod, setPaymentMethod] = useState<string>("cod");
   const [isProcessing, setIsProcessing] = useState(false);
   const [orderComplete, setOrderComplete] = useState(false);
@@ -54,7 +56,7 @@ const Checkout = () => {
   }, [user]);
 
   const subtotal = getCartTotal();
-  const shipping = subtotal > 5000 ? 0 : 250;
+  const shipping = subtotal > 5000 ? 0 : settings.shipping_fee;
   const total = subtotal + shipping;
 
   const formatPrice = (price: number) => `PKR ${price.toLocaleString()}`;
@@ -386,11 +388,8 @@ const Checkout = () => {
                   {paymentMethod === "bank" && (
                     <div className="mt-6 p-4 bg-muted/50 rounded-lg">
                       <h4 className="font-medium mb-2">Bank Account Details:</h4>
-                      <p className="text-sm text-muted-foreground">
-                        Bank: HBL (Habib Bank Limited)<br />
-                        Account Title: Skyths Leather<br />
-                        Account Number: 1234-5678-9012-3456<br />
-                        IBAN: PK00HABB1234567890123456
+                      <p className="text-sm text-muted-foreground whitespace-pre-line">
+                        {settings.bank_details}
                       </p>
                     </div>
                   )}
@@ -399,8 +398,8 @@ const Checkout = () => {
                     <div className="mt-6 p-4 bg-muted/50 rounded-lg">
                       <h4 className="font-medium mb-2">{paymentMethod === "easypaisa" ? "EasyPaisa" : "JazzCash"} Details:</h4>
                       <p className="text-sm text-muted-foreground">
-                        Account Title: Skyths Leather<br />
-                        Account Number: 0300-1234567
+                        Account Title: {settings.store_name}<br />
+                        Account Number: {paymentMethod === "easypaisa" ? settings.easypaisa_number : settings.jazzcash_number}
                       </p>
                     </div>
                   )}
