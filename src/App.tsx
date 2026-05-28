@@ -1,3 +1,5 @@
+import { useState, useEffect } from "react";
+import { AnimatePresence } from "framer-motion";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -20,10 +22,29 @@ import ShippingInfo from "./pages/ShippingInfo";
 import NotFound from "./pages/NotFound";
 import OrderTracking from "./pages/OrderTracking";
 import { ChatBot } from "@/components/ChatBot";
+import IntroAnimation from "@/components/IntroAnimation";
 
 const queryClient = new QueryClient();
 
-const App = () => (
+const App = () => {
+  const [showIntro, setShowIntro] = useState(() => {
+    if (typeof window === "undefined") return false;
+    return !sessionStorage.getItem("skyths_intro_seen");
+  });
+
+  useEffect(() => {
+    document.body.style.overflow = showIntro ? "hidden" : "";
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, [showIntro]);
+
+  const handleIntroComplete = () => {
+    sessionStorage.setItem("skyths_intro_seen", "1");
+    setShowIntro(false);
+  };
+
+  return (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
       <AuthProvider>
@@ -51,11 +72,15 @@ const App = () => (
               </Routes>
               <ChatBot />
             </BrowserRouter>
+            <AnimatePresence mode="wait">
+              {showIntro && <IntroAnimation key="intro" onComplete={handleIntroComplete} />}
+            </AnimatePresence>
           </CartProvider>
         </SiteSettingsProvider>
       </AuthProvider>
     </TooltipProvider>
   </QueryClientProvider>
-);
+  );
+};
 
 export default App;
