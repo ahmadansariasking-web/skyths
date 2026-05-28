@@ -1025,7 +1025,8 @@ const Admin = () => {
                       <label className="block text-sm font-medium mb-2">Store Name</label>
                       <input
                         type="text"
-                        defaultValue="SKYTHS"
+                        value={settingsForm.store_name}
+                        onChange={(e) => updateSettingsField("store_name", e.target.value)}
                         className="w-full h-10 px-4 bg-background border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
                       />
                     </div>
@@ -1033,7 +1034,8 @@ const Admin = () => {
                       <label className="block text-sm font-medium mb-2">Contact Email</label>
                       <input
                         type="email"
-                        defaultValue="info@skyths.com"
+                        value={settingsForm.contact_email}
+                        onChange={(e) => updateSettingsField("contact_email", e.target.value)}
                         className="w-full h-10 px-4 bg-background border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
                       />
                     </div>
@@ -1041,7 +1043,8 @@ const Admin = () => {
                       <label className="block text-sm font-medium mb-2">Phone Number</label>
                       <input
                         type="text"
-                        defaultValue="+92 300 1234567"
+                        value={settingsForm.phone}
+                        onChange={(e) => updateSettingsField("phone", e.target.value)}
                         className="w-full h-10 px-4 bg-background border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
                       />
                     </div>
@@ -1049,7 +1052,8 @@ const Admin = () => {
                       <label className="block text-sm font-medium mb-2">Shipping Fee (PKR)</label>
                       <input
                         type="number"
-                        defaultValue="250"
+                        value={settingsForm.shipping_fee}
+                        onChange={(e) => updateSettingsField("shipping_fee", Number(e.target.value) || 0)}
                         className="w-full h-10 px-4 bg-background border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
                       />
                     </div>
@@ -1057,12 +1061,15 @@ const Admin = () => {
                   <div>
                     <label className="block text-sm font-medium mb-2">Store Address</label>
                     <textarea
-                      defaultValue="Lahore, Pakistan"
+                      value={settingsForm.store_address}
+                      onChange={(e) => updateSettingsField("store_address", e.target.value)}
                       rows={2}
                       className="w-full px-4 py-2 bg-background border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
                     />
                   </div>
-                  <Button variant="hero">Save Settings</Button>
+                  <Button variant="hero" disabled={savingSettings} onClick={() => void saveSiteSettings("Store settings saved")}>
+                    {savingSettings ? "Saving..." : "Save Settings"}
+                  </Button>
                 </div>
               </div>
 
@@ -1072,7 +1079,8 @@ const Admin = () => {
                   <div>
                     <label className="block text-sm font-medium mb-2">Bank Account Details</label>
                     <textarea
-                      defaultValue="Bank: HBL&#10;Account: 1234567890&#10;Title: SKYTHS"
+                      value={settingsForm.bank_details}
+                      onChange={(e) => updateSettingsField("bank_details", e.target.value)}
                       rows={3}
                       className="w-full px-4 py-2 bg-background border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
                     />
@@ -1082,7 +1090,8 @@ const Admin = () => {
                       <label className="block text-sm font-medium mb-2">EasyPaisa Number</label>
                       <input
                         type="text"
-                        defaultValue="0300-1234567"
+                        value={settingsForm.easypaisa_number}
+                        onChange={(e) => updateSettingsField("easypaisa_number", e.target.value)}
                         className="w-full h-10 px-4 bg-background border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
                       />
                     </div>
@@ -1090,12 +1099,15 @@ const Admin = () => {
                       <label className="block text-sm font-medium mb-2">JazzCash Number</label>
                       <input
                         type="text"
-                        defaultValue="0300-1234567"
+                        value={settingsForm.jazzcash_number}
+                        onChange={(e) => updateSettingsField("jazzcash_number", e.target.value)}
                         className="w-full h-10 px-4 bg-background border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
                       />
                     </div>
                   </div>
-                  <Button variant="hero">Save Payment Settings</Button>
+                  <Button variant="hero" disabled={savingSettings} onClick={() => void saveSiteSettings("Payment settings saved")}>
+                    {savingSettings ? "Saving..." : "Save Payment Settings"}
+                  </Button>
                 </div>
               </div>
             </div>
