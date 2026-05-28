@@ -56,7 +56,7 @@ const Checkout = () => {
   }, [user]);
 
   const subtotal = getCartTotal();
-  const shipping = subtotal > 5000 ? 0 : 250;
+  const shipping = subtotal > 5000 ? 0 : settings.shipping_fee;
   const total = subtotal + shipping;
 
   const formatPrice = (price: number) => `PKR ${price.toLocaleString()}`;
