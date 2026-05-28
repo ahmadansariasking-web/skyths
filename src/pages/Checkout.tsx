@@ -11,11 +11,13 @@ import OrderReceipt from "@/components/OrderReceipt";
 import { useCart } from "@/contexts/CartContext";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
+import { useSiteSettings } from "@/hooks/useSiteSettings";
 
 const Checkout = () => {
   const navigate = useNavigate();
   const { cartItems, getCartTotal, clearCart } = useCart();
   const { isAuthenticated, user } = useAuth();
+  const { settings } = useSiteSettings();
   const [paymentMethod, setPaymentMethod] = useState<string>("cod");
   const [isProcessing, setIsProcessing] = useState(false);
   const [orderComplete, setOrderComplete] = useState(false);
