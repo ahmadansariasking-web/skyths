@@ -229,29 +229,6 @@ const IntroAnimation = ({ onComplete }: IntroAnimationProps) => {
 
 
 
-        {/* Loader dots */}
-        <motion.div
-          className="absolute left-1/2 -translate-x-1/2 bottom-20 flex items-center gap-3"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 1, delay: 1.5 }}
-        >
-          {[0, 1, 2].map((i) => (
-            <motion.span
-              key={i}
-              className="w-2 h-2 rounded-full bg-primary"
-              style={{ boxShadow: "0 0 12px hsl(25 80% 55% / 0.9)" }}
-              animate={{ opacity: [0.3, 1, 0.3], scale: [0.8, 1.2, 0.8] }}
-              transition={{
-                duration: 1.3,
-                repeat: Infinity,
-                delay: i * 0.2,
-                ease: "easeInOut",
-              }}
-            />
-          ))}
-        </motion.div>
-      </div>
 
       {/* Top & bottom film bars for cinematic feel */}
       <motion.div
