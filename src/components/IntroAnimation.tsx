@@ -138,8 +138,8 @@ const IntroAnimation = ({ onComplete }: IntroAnimationProps) => {
 
         {/* Logo - centered with rings */}
         <motion.div
-          className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 relative"
-          style={{ position: "absolute" }}
+          className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2"
+
           initial={{ opacity: 0, scale: 0.6, filter: "blur(20px)" }}
           animate={{ opacity: 1, scale: 1, filter: "blur(0px)" }}
           transition={{ duration: 1.8, ease: [0.22, 1, 0.36, 1], delay: 0.3 }}
