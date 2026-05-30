@@ -101,11 +101,12 @@ const IntroAnimation = ({ onComplete }: IntroAnimationProps) => {
       ))}
 
       {/* Center stage */}
-      <div className="relative z-10 h-full w-full flex flex-col items-center justify-center px-6">
-        {/* Rotating rings behind logo */}
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 pointer-events-none">
+      <div className="relative z-10 h-full w-full flex flex-col items-center justify-center px-6 gap-10">
+        {/* Logo + rings stack */}
+        <div className="relative flex items-center justify-center w-[320px] h-[320px] md:w-[420px] md:h-[420px]">
+          {/* Rotating rings */}
           <motion.div
-            className="w-[420px] h-[420px] rounded-full border border-primary/20"
+            className="absolute inset-0 rounded-full border border-primary/20"
             initial={{ opacity: 0, scale: 0.5 }}
             animate={{ opacity: 1, scale: 1, rotate: 360 }}
             transition={{
@@ -134,57 +135,38 @@ const IntroAnimation = ({ onComplete }: IntroAnimationProps) => {
               rotate: { duration: 22, repeat: Infinity, ease: "linear" },
             }}
           />
-        </div>
 
-        {/* Logo - centered with rings */}
-        <motion.div
-          className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2"
-
-          initial={{ opacity: 0, scale: 0.6, filter: "blur(20px)" }}
-          animate={{ opacity: 1, scale: 1, filter: "blur(0px)" }}
-          transition={{ duration: 1.8, ease: [0.22, 1, 0.36, 1], delay: 0.3 }}
-        >
-          {/* Rim glow */}
-          <div
-            className="absolute inset-0 rounded-full"
-            style={{
-              boxShadow:
-                "0 0 80px hsl(25 80% 55% / 0.6), 0 0 160px hsl(30 85% 60% / 0.3)",
-            }}
-          />
-          <motion.img
-            src={logo}
-            alt="Skyths"
-            className="w-48 h-48 md:w-56 md:h-56 object-contain relative drop-shadow-2xl"
-            animate={{ y: [0, -8, 0] }}
-            transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
-          />
-          {/* Metallic shine sweep */}
+          {/* Logo - perfectly centered in rings */}
           <motion.div
-            className="absolute inset-0 overflow-hidden rounded-full pointer-events-none"
-            style={{ mixBlendMode: "overlay" }}
+            className="relative flex items-center justify-center"
+            initial={{ opacity: 0, scale: 0.6, filter: "blur(20px)" }}
+            animate={{ opacity: 1, scale: 1, filter: "blur(0px)" }}
+            transition={{ duration: 1.8, ease: [0.22, 1, 0.36, 1], delay: 0.3 }}
           >
-            <motion.div
-              className="absolute top-0 -left-1/2 w-1/2 h-full"
+            <div
+              className="absolute inset-0 rounded-full"
               style={{
-                background:
-                  "linear-gradient(115deg, transparent 30%, hsl(0 0% 100% / 0.5) 50%, transparent 70%)",
-                filter: "blur(8px)",
+                boxShadow:
+                  "0 0 80px hsl(25 80% 55% / 0.6), 0 0 160px hsl(30 85% 60% / 0.3)",
               }}
-              initial={{ x: "-100%" }}
-              animate={{ x: "400%" }}
-              transition={{ duration: 2.2, delay: 1.2, ease: "easeInOut" }}
+            />
+            <motion.img
+              src={logo}
+              alt="Skyths"
+              className="w-40 h-40 md:w-52 md:h-52 object-contain relative drop-shadow-2xl"
+              animate={{ y: [0, -8, 0] }}
+              transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
             />
           </motion.div>
-        </motion.div>
+        </div>
 
-        {/* Text - positioned well below the logo & rings */}
-        <div className="absolute left-1/2 -translate-x-1/2 top-1/2 mt-[300px] md:mt-[340px] h-28 flex items-center justify-center w-full px-6">
+        {/* Text below logo */}
+        <div className="h-24 flex items-center justify-center w-full">
           <AnimatePresence mode="wait">
             {phase === "hi" ? (
               <motion.h1
                 key="hi"
-                className="font-serif text-6xl md:text-8xl font-semibold tracking-wide text-gradient-copper"
+                className="font-serif text-5xl md:text-7xl font-semibold tracking-wide text-gradient-copper"
                 initial={{ opacity: 0, y: 20, filter: "blur(15px)" }}
                 animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
                 exit={{ opacity: 0, y: -20, filter: "blur(15px)" }}
@@ -202,7 +184,7 @@ const IntroAnimation = ({ onComplete }: IntroAnimationProps) => {
                 transition={{ duration: 1, ease: [0.22, 1, 0.36, 1] }}
               >
                 <motion.p
-                  className="font-sans text-xs md:text-sm tracking-[0.5em] uppercase text-muted-foreground mb-3"
+                  className="font-sans text-[10px] md:text-xs tracking-[0.5em] uppercase text-muted-foreground mb-2"
                   initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.8, delay: 0.2 }}
@@ -210,7 +192,7 @@ const IntroAnimation = ({ onComplete }: IntroAnimationProps) => {
                   Welcome To
                 </motion.p>
                 <motion.h1
-                  className="font-serif text-5xl md:text-7xl font-semibold tracking-wider"
+                  className="font-serif text-4xl md:text-6xl font-semibold tracking-wider"
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 1, delay: 0.3 }}
@@ -222,6 +204,7 @@ const IntroAnimation = ({ onComplete }: IntroAnimationProps) => {
             )}
           </AnimatePresence>
         </div>
+
 
         {/* Loader dots */}
         <motion.div
