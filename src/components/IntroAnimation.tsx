@@ -101,114 +101,111 @@ const IntroAnimation = ({ onComplete }: IntroAnimationProps) => {
       ))}
 
       {/* Center stage */}
-      <div className="relative z-10 h-full w-full flex flex-col items-center justify-center px-6 gap-10">
-        {/* Logo + rings stack */}
-        <div className="relative flex items-center justify-center w-[320px] h-[320px] md:w-[420px] md:h-[420px]">
-          {/* Rotating rings */}
-          <motion.div
-            className="absolute inset-0 rounded-full border border-primary/20"
-            initial={{ opacity: 0, scale: 0.5 }}
-            animate={{ opacity: 1, scale: 1, rotate: 360 }}
-            transition={{
-              opacity: { duration: 1.5 },
-              scale: { duration: 1.5, ease: "easeOut" },
-              rotate: { duration: 40, repeat: Infinity, ease: "linear" },
-            }}
-          />
-          <motion.div
-            className="absolute inset-8 rounded-full border border-primary/30"
-            initial={{ opacity: 0, scale: 0.5 }}
-            animate={{ opacity: 1, scale: 1, rotate: -360 }}
-            transition={{
-              opacity: { duration: 1.5, delay: 0.2 },
-              scale: { duration: 1.5, delay: 0.2, ease: "easeOut" },
-              rotate: { duration: 30, repeat: Infinity, ease: "linear" },
-            }}
-          />
-          <motion.div
-            className="absolute inset-16 rounded-full border border-primary/40"
-            initial={{ opacity: 0, scale: 0.5 }}
-            animate={{ opacity: 1, scale: 1, rotate: 360 }}
-            transition={{
-              opacity: { duration: 1.5, delay: 0.4 },
-              scale: { duration: 1.5, delay: 0.4, ease: "easeOut" },
-              rotate: { duration: 22, repeat: Infinity, ease: "linear" },
-            }}
-          />
+      <div className="absolute inset-0 z-10 grid place-items-center px-6">
+        <div className="flex flex-col items-center gap-12">
+          {/* Logo + rings - absolutely positioned together inside a fixed box */}
+          <div className="relative w-[300px] h-[300px] md:w-[400px] md:h-[400px] grid place-items-center">
+            {/* Rotating rings */}
+            <motion.div
+              className="absolute inset-0 rounded-full border border-primary/20"
+              initial={{ opacity: 0, scale: 0.5 }}
+              animate={{ opacity: 1, scale: 1, rotate: 360 }}
+              transition={{
+                opacity: { duration: 1.5 },
+                scale: { duration: 1.5, ease: "easeOut" },
+                rotate: { duration: 40, repeat: Infinity, ease: "linear" },
+              }}
+            />
+            <motion.div
+              className="absolute inset-8 rounded-full border border-primary/30"
+              initial={{ opacity: 0, scale: 0.5 }}
+              animate={{ opacity: 1, scale: 1, rotate: -360 }}
+              transition={{
+                opacity: { duration: 1.5, delay: 0.2 },
+                scale: { duration: 1.5, delay: 0.2, ease: "easeOut" },
+                rotate: { duration: 30, repeat: Infinity, ease: "linear" },
+              }}
+            />
+            <motion.div
+              className="absolute inset-16 rounded-full border border-primary/40"
+              initial={{ opacity: 0, scale: 0.5 }}
+              animate={{ opacity: 1, scale: 1, rotate: 360 }}
+              transition={{
+                opacity: { duration: 1.5, delay: 0.4 },
+                scale: { duration: 1.5, delay: 0.4, ease: "easeOut" },
+                rotate: { duration: 22, repeat: Infinity, ease: "linear" },
+              }}
+            />
 
-          {/* Logo - perfectly centered in rings */}
-          <motion.div
-            className="relative flex items-center justify-center"
-            initial={{ opacity: 0, scale: 0.6, filter: "blur(20px)" }}
-            animate={{ opacity: 1, scale: 1, filter: "blur(0px)" }}
-            transition={{ duration: 1.8, ease: [0.22, 1, 0.36, 1], delay: 0.3 }}
-          >
+            {/* Orange rim glow centered on logo */}
             <div
-              className="absolute inset-0 rounded-full"
+              className="absolute w-40 h-40 md:w-52 md:h-52 rounded-full pointer-events-none"
               style={{
                 boxShadow:
                   "0 0 80px hsl(25 80% 55% / 0.6), 0 0 160px hsl(30 85% 60% / 0.3)",
               }}
             />
+
+            {/* Logo - dead center via grid place-items-center */}
             <motion.img
               src={logo}
               alt="Skyths"
-              className="w-40 h-40 md:w-52 md:h-52 object-contain relative drop-shadow-2xl"
-              animate={{ y: [0, -8, 0] }}
-              transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
+              className="relative w-40 h-40 md:w-52 md:h-52 object-contain drop-shadow-2xl"
+              initial={{ opacity: 0, scale: 0.6, filter: "blur(20px)" }}
+              animate={{
+                opacity: 1,
+                scale: 1,
+                filter: "blur(0px)",
+                y: [0, -8, 0],
+              }}
+              transition={{
+                opacity: { duration: 1.8, delay: 0.3, ease: [0.22, 1, 0.36, 1] },
+                scale: { duration: 1.8, delay: 0.3, ease: [0.22, 1, 0.36, 1] },
+                filter: { duration: 1.8, delay: 0.3, ease: [0.22, 1, 0.36, 1] },
+                y: { duration: 4, repeat: Infinity, ease: "easeInOut", delay: 2 },
+              }}
             />
-          </motion.div>
-        </div>
+          </div>
 
-        {/* Text below logo */}
-        <div className="h-24 flex items-center justify-center w-full">
-          <AnimatePresence mode="wait">
-            {phase === "hi" ? (
-              <motion.h1
-                key="hi"
-                className="font-serif text-5xl md:text-7xl font-semibold tracking-wide text-gradient-copper"
-                initial={{ opacity: 0, y: 20, filter: "blur(15px)" }}
-                animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
-                exit={{ opacity: 0, y: -20, filter: "blur(15px)" }}
-                transition={{ duration: 0.9, ease: [0.22, 1, 0.36, 1] }}
-              >
-                Hi!!
-              </motion.h1>
-            ) : (
-              <motion.div
-                key="welcome"
-                className="text-center"
-                initial={{ opacity: 0, filter: "blur(15px)" }}
-                animate={{ opacity: 1, filter: "blur(0px)" }}
-                exit={{ opacity: 0, filter: "blur(15px)" }}
-                transition={{ duration: 1, ease: [0.22, 1, 0.36, 1] }}
-              >
-                <motion.p
-                  className="font-sans text-[10px] md:text-xs tracking-[0.5em] uppercase text-muted-foreground mb-2"
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.8, delay: 0.2 }}
-                >
-                  Welcome To
-                </motion.p>
+          {/* Text below logo */}
+          <div className="h-20 flex items-center justify-center">
+            <AnimatePresence mode="wait">
+              {phase === "hi" ? (
                 <motion.h1
-                  className="font-serif text-4xl md:text-6xl font-semibold tracking-wider"
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 1, delay: 0.3 }}
+                  key="hi"
+                  className="font-serif text-5xl md:text-7xl font-semibold tracking-wide text-gradient-copper"
+                  initial={{ opacity: 0, y: 20, filter: "blur(15px)" }}
+                  animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
+                  exit={{ opacity: 0, y: -20, filter: "blur(15px)" }}
+                  transition={{ duration: 0.9, ease: [0.22, 1, 0.36, 1] }}
                 >
-                  <span className="text-gradient-copper">Skyths</span>{" "}
-                  <span className="text-foreground/95">Store</span>
+                  Hi!!
                 </motion.h1>
-              </motion.div>
-            )}
-          </AnimatePresence>
+              ) : (
+                <motion.div
+                  key="welcome"
+                  className="text-center"
+                  initial={{ opacity: 0, filter: "blur(15px)" }}
+                  animate={{ opacity: 1, filter: "blur(0px)" }}
+                  exit={{ opacity: 0, filter: "blur(15px)" }}
+                  transition={{ duration: 1, ease: [0.22, 1, 0.36, 1] }}
+                >
+                  <p className="font-sans text-[10px] md:text-xs tracking-[0.5em] uppercase text-muted-foreground mb-2">
+                    Welcome To
+                  </p>
+                  <h1 className="font-serif text-3xl md:text-5xl font-semibold tracking-wider whitespace-nowrap">
+                    <span className="text-gradient-copper">Skyths</span>{" "}
+                    <span className="text-foreground/95">Store</span>
+                  </h1>
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </div>
         </div>
-
 
         {/* Loader dots */}
         <motion.div
-          className="absolute left-1/2 -translate-x-1/2 bottom-20 flex items-center gap-3"
+          className="absolute left-1/2 -translate-x-1/2 bottom-16 flex items-center gap-3"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 1, delay: 1.5 }}
@@ -229,6 +226,9 @@ const IntroAnimation = ({ onComplete }: IntroAnimationProps) => {
           ))}
         </motion.div>
       </div>
+
+
+
 
       {/* Top & bottom film bars for cinematic feel */}
       <motion.div
