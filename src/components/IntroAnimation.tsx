@@ -136,9 +136,10 @@ const IntroAnimation = ({ onComplete }: IntroAnimationProps) => {
           />
         </div>
 
-        {/* Logo */}
+        {/* Logo - centered with rings */}
         <motion.div
-          className="relative"
+          className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 relative"
+          style={{ position: "absolute" }}
           initial={{ opacity: 0, scale: 0.6, filter: "blur(20px)" }}
           animate={{ opacity: 1, scale: 1, filter: "blur(0px)" }}
           transition={{ duration: 1.8, ease: [0.22, 1, 0.36, 1], delay: 0.3 }}
@@ -177,8 +178,8 @@ const IntroAnimation = ({ onComplete }: IntroAnimationProps) => {
           </motion.div>
         </motion.div>
 
-        {/* Text */}
-        <div className="mt-12 h-28 flex items-center justify-center">
+        {/* Text - positioned well below the logo & rings */}
+        <div className="absolute left-1/2 -translate-x-1/2 top-1/2 mt-[300px] md:mt-[340px] h-28 flex items-center justify-center w-full px-6">
           <AnimatePresence mode="wait">
             {phase === "hi" ? (
               <motion.h1
@@ -224,7 +225,7 @@ const IntroAnimation = ({ onComplete }: IntroAnimationProps) => {
 
         {/* Loader dots */}
         <motion.div
-          className="mt-10 flex items-center gap-3"
+          className="absolute left-1/2 -translate-x-1/2 bottom-20 flex items-center gap-3"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 1, delay: 1.5 }}
