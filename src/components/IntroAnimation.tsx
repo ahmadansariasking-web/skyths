@@ -103,7 +103,7 @@ const IntroAnimation = ({ onComplete }: IntroAnimationProps) => {
       {/* Center stage */}
       <div className="relative z-10 h-full w-full flex flex-col items-center justify-center px-6">
         {/* Rotating rings behind logo */}
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-[55%] pointer-events-none">
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 pointer-events-none">
           <motion.div
             className="w-[420px] h-[420px] rounded-full border border-primary/20"
             initial={{ opacity: 0, scale: 0.5 }}
