@@ -43,7 +43,7 @@ const Navbar = () => {
           <Link to="/" className="flex items-center gap-1 group">
             <img
               src={logo}
-              alt="Skyths"
+              alt="Skyths dragon logo"
               className="h-10 w-10 object-contain transition-transform duration-300 group-hover:scale-105"
             />
             <span className="font-serif text-2xl font-bold text-white hidden sm:block">
@@ -71,6 +71,7 @@ const Navbar = () => {
               variant="ghost"
               size="icon"
               className="relative"
+              aria-label="Open shopping cart"
               onClick={() => navigate("/cart")}
             >
               <ShoppingCart className="h-5 w-5" />
@@ -131,6 +132,7 @@ const Navbar = () => {
               variant="ghost"
               size="icon"
               className="md:hidden"
+              aria-label={isMenuOpen ? "Close menu" : "Open menu"}
               onClick={() => setIsMenuOpen(!isMenuOpen)}
             >
               {isMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}

@@ -28,7 +28,7 @@ const ProductCard = ({ product, index, onAddToCart }: ProductCardProps) => {
         <div className="relative aspect-square overflow-hidden">
           <img
             src={product.image}
-            alt={product.name}
+            alt={`${product.name} leather wallet`}
             className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
           />
           
@@ -40,6 +40,7 @@ const ProductCard = ({ product, index, onAddToCart }: ProductCardProps) => {
             <Button
               variant="hero"
               size="icon"
+              aria-label={`View ${product.name}`}
               onClick={() => navigate(`/product/${product.id}`)}
             >
               <Eye className="h-4 w-4" />
@@ -47,6 +48,7 @@ const ProductCard = ({ product, index, onAddToCart }: ProductCardProps) => {
             <Button
               variant="hero"
               size="icon"
+              aria-label={`Add ${product.name} to cart`}
               onClick={() => onAddToCart?.(product)}
             >
               <ShoppingCart className="h-4 w-4" />

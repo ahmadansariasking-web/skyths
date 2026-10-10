@@ -35,7 +35,7 @@ const About = () => {
         <div className="container mx-auto px-4">
           {/* Hero Section */}
           <div className="text-center max-w-3xl mx-auto mb-16 animate-fade-in">
-            <img src={logo} alt="Skyths" className="w-24 h-24 mx-auto mb-6" />
+            <img src={logo} alt="Skyths dragon logo" className="w-24 h-24 mx-auto mb-6" />
             <h1 className="font-serif text-4xl md:text-5xl font-bold mb-6">
               About <span className="text-gradient-copper">Skyths</span>
             </h1>
@@ -50,7 +50,7 @@ const About = () => {
           <div className="grid md:grid-cols-2 gap-12 items-center mb-24 animate-fade-in">
             <div className="relative">
               <div className="aspect-square rounded-2xl bg-transparent flex items-center justify-center">
-                <img src={logo} alt="Skyths Logo" className="w-full h-full object-contain" />
+                <img src={logo} alt="Skyths brand logo" className="w-full h-full object-contain" />
               </div>
             </div>
             <div>

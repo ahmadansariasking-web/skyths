@@ -1,0 +1,13 @@
+# Skyths
+
+> Premium handcrafted leather wallets from Pakistan — bifold, cardholder, long, travel wallets and money clips.
+
+## Pages
+
+- [Home](/): Featured wallets and brand overview.
+- [Shop](/shop): Full leather wallet collection with prices in PKR.
+- [About](/about): The Skyths story and craftsmanship values.
+- [Contact](/contact): Phone, email and store address.
+- [FAQs](/faqs): Common questions about products, orders and payments.
+- [Shipping Info](/shipping-info): Delivery times, fees and coverage across Pakistan.
+- [Track Order](/track): Check order status using an order ID.
