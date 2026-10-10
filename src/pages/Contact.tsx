@@ -7,6 +7,7 @@ import { toast } from "sonner";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { useSiteSettings } from "@/hooks/useSiteSettings";
+import Seo from "@/components/Seo";
 
 const Contact = () => {
   const { settings } = useSiteSettings();

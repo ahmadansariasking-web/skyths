@@ -2,6 +2,7 @@ import { Award, Heart, Shield, Users } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import logo from "@/assets/skyths-logo.png";
+import Seo from "@/components/Seo";
 
 const About = () => {
   const values = [

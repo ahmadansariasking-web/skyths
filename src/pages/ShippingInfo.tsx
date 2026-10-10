@@ -2,6 +2,7 @@ import { Truck, Clock, MapPin, Package, Shield, CreditCard, Phone } from "lucide
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { useSiteSettings } from "@/hooks/useSiteSettings";
+import Seo from "@/components/Seo";
 
 const ShippingInfo = () => {
   const { settings } = useSiteSettings();

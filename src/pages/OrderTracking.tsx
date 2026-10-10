@@ -10,6 +10,7 @@ import {
   Clock, CheckCircle, Package, Truck, Home, XCircle, Loader2, Search, Radio, ArrowRight,
 } from "lucide-react";
 import { toast } from "sonner";
+import Seo from "@/components/Seo";
 
 const STAGES = [
   { key: "pending", label: "Order Placed", icon: Clock },
