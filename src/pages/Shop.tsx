@@ -6,6 +6,16 @@ import ProductCard from "@/components/ProductCard";
 import { products, categories, Product } from "@/data/products";
 import { Button } from "@/components/ui/button";
 import { useCart } from "@/contexts/CartContext";
+import Seo from "@/components/Seo";
+
+const shopJsonLd = {
+  "@context": "https://schema.org",
+  "@type": "CollectionPage",
+  name: "Shop Leather Wallets - Skyths",
+  url: "https://skyths.lovable.app/shop",
+  description:
+    "Browse the full Skyths collection of handcrafted leather wallets: bifold, cardholder, travel and minimalist designs.",
+};
 
 const Shop = () => {
   const { addToCart } = useCart();
@@ -25,6 +35,12 @@ const Shop = () => {
 
   return (
     <div className="min-h-screen bg-background">
+      <Seo
+        title="Shop Leather Wallets - Bifold, Cardholder & Travel | Skyths"
+        description="Browse the full Skyths collection of handcrafted leather wallets: bifold, cardholder, travel and minimalist designs, delivered across Pakistan."
+        path="/shop"
+        jsonLd={shopJsonLd}
+      />
       <Navbar />
 
       <main className="pt-32 pb-24">
