@@ -65,6 +65,11 @@ const ShippingInfo = () => {
 
   return (
     <div className="min-h-screen bg-background">
+      <Seo
+        title="Shipping Info - Fast Delivery Across Pakistan | Skyths"
+        description="Skyths shipping details: free shipping on orders above PKR 5,000, 2-7 day delivery across Pakistan and secure premium packaging."
+        path="/shipping-info"
+      />
       <Navbar />
 
       {/* Hero Section */}

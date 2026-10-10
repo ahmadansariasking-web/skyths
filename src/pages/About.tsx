@@ -30,6 +30,11 @@ const About = () => {
 
   return (
     <div className="min-h-screen bg-background">
+      <Seo
+        title="About Skyths - Handcrafted Leather Wallets Made in Pakistan"
+        description="Learn about Skyths: premium full-grain leather wallets handcrafted by skilled artisans in Pakistan, built to last and age beautifully."
+        path="/about"
+      />
       <Navbar />
 
       <main className="pt-32 pb-24">
