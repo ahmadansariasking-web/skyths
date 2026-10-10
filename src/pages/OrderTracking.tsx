@@ -10,6 +10,7 @@ import {
   Clock, CheckCircle, Package, Truck, Home, XCircle, Loader2, Search, Radio, ArrowRight,
 } from "lucide-react";
 import { toast } from "sonner";
+import Seo from "@/components/Seo";
 
 const STAGES = [
   { key: "pending", label: "Order Placed", icon: Clock },
@@ -105,6 +106,11 @@ const OrderTracking = () => {
 
   return (
     <div className="min-h-screen bg-background">
+      <Seo
+        title="Track Your Order - Real-Time Status | Skyths"
+        description="Track your Skyths order in real time. Enter your unique Order ID to see exactly where your handcrafted leather wallet is."
+        path="/track"
+      />
       <Navbar />
       <main className="pt-32 pb-24">
         <div className="container mx-auto px-4 max-w-4xl">

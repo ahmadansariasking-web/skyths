@@ -5,6 +5,7 @@ import FeaturedProducts from "@/components/FeaturedProducts";
 import Footer from "@/components/Footer";
 import { Product } from "@/data/products";
 import { useCart } from "@/contexts/CartContext";
+import Seo from "@/components/Seo";
 
 const Index = () => {
   const { addToCart } = useCart();
@@ -18,6 +19,11 @@ const Index = () => {
 
   return (
     <div className="min-h-screen bg-background">
+      <Seo
+        title="Skyths - Premium Handcrafted Leather Wallets | Pakistan"
+        description="Premium handcrafted leather wallets by Skyths. Shop bifold, cardholder and travel wallets with fast delivery across Pakistan."
+        path="/"
+      />
       <Navbar />
       <Hero />
       <FeaturedProducts onAddToCart={handleAddToCart} />

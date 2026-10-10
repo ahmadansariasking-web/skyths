@@ -7,6 +7,7 @@ import { toast } from "sonner";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { useSiteSettings } from "@/hooks/useSiteSettings";
+import Seo from "@/components/Seo";
 
 const Contact = () => {
   const { settings } = useSiteSettings();
@@ -69,6 +70,11 @@ const Contact = () => {
 
   return (
     <div className="min-h-screen bg-background">
+      <Seo
+        title="Contact Skyths - We're Here to Help"
+        description="Get in touch with the Skyths team for order support, product questions or custom requests. We reply within 24 hours."
+        path="/contact"
+      />
       <Navbar />
 
       <main className="pt-32 pb-24">

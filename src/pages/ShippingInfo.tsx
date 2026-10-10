@@ -2,6 +2,7 @@ import { Truck, Clock, MapPin, Package, Shield, CreditCard, Phone } from "lucide
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { useSiteSettings } from "@/hooks/useSiteSettings";
+import Seo from "@/components/Seo";
 
 const ShippingInfo = () => {
   const { settings } = useSiteSettings();
@@ -64,6 +65,11 @@ const ShippingInfo = () => {
 
   return (
     <div className="min-h-screen bg-background">
+      <Seo
+        title="Shipping Info - Fast Delivery Across Pakistan | Skyths"
+        description="Skyths shipping details: free shipping on orders above PKR 5,000, 2-7 day delivery across Pakistan and secure premium packaging."
+        path="/shipping-info"
+      />
       <Navbar />
 
       {/* Hero Section */}

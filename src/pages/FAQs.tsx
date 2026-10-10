@@ -2,6 +2,7 @@ import { useState } from "react";
 import { ChevronDown, ChevronUp, Search } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
+import Seo from "@/components/Seo";
 
 interface FAQ {
   question: string;
@@ -93,6 +94,11 @@ const FAQs = () => {
 
   return (
     <div className="min-h-screen bg-background">
+      <Seo
+        title="FAQs - Orders, Payments & Delivery | Skyths"
+        description="Answers to common questions about Skyths orders, payment methods (Bank Transfer, EasyPaisa, JazzCash), shipping and returns."
+        path="/faqs"
+      />
       <Navbar />
 
       {/* Hero Section */}
